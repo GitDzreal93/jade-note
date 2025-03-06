@@ -1,6 +1,10 @@
 import Link from 'next/link'
 
-export default function AuthError() {
+export default function AuthError({
+  searchParams,
+}: {
+  searchParams: { error?: string }
+}) {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -9,7 +13,7 @@ export default function AuthError() {
             认证错误
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            抱歉，在处理您的认证请求时出现了问题。
+            {searchParams.error || '抱歉，在处理您的认证请求时出现了问题。'}
           </p>
         </div>
       </div>
@@ -18,7 +22,7 @@ export default function AuthError() {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <div className="space-y-6">
             <p className="text-center text-sm text-gray-500">
-              请尝试重新登录或注册。如果问题持续存在，请联系我们的支持团队。
+              请尝试重新登录或注册。如果问题持续存在，请<Link href="/contact" className="text-emerald-600 hover:text-emerald-500">联系我们的支持团队</Link>。
             </p>
             <div className="space-y-3">
               <Link
