@@ -17,16 +17,11 @@ export async function GET(request: Request) {
 
   // Handle successful authentication
   if (code) {
-    const supabase = createClient()
+    const supabase = await createClient() // 添加 await
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      // Successful authentication, redirect to the next page
       return NextResponse.redirect(new URL(next, request.url))
     }
-    // Handle session exchange error
-    const errorPath = new URL('/auth/auth-error', request.url)
-    errorPath.searchParams.set('error', '会话验证失败，请重新登录')
-    return NextResponse.redirect(errorPath)
   }
 
   // No code or error present, redirect to error page
