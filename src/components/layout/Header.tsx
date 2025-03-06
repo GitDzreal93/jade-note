@@ -1,7 +1,14 @@
 import Link from 'next/link';
 import { BookOpenIcon } from '@heroicons/react/24/solid';
+import { createClient } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
+import UserMenu from '../auth/UserMenu';
 
-export default function Header() {
+export default async function Header() {
+  const cookieStore = cookies()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
   return (
     <nav className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,12 +31,18 @@ export default function Header() {
             </div>
           </div>
           <div className="flex items-center">
-            <Link href="/auth/login" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
-              登录
-            </Link>
-            <Link href="/auth/register" className="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700">
-              注册
-            </Link>
+            {user ? (
+              <UserMenu user={user} />
+            ) : (
+              <>
+                <Link href="/auth/login" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">
+                  登录
+                </Link>
+                <Link href="/auth/register" className="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700">
+                  注册
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
