@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next.js 最佳实践指南 - Jade Note</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-book-open text-emerald-600 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">Jade Note</span>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">首页</a>
+                        <a href="#" class="border-emerald-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">文档</a>
+                        <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">定价</a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">登录</a>
+                    <a href="#" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700">注册</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+            <!-- 左侧目录 -->
+            <div class="hidden lg:block lg:col-span-3">
+                <nav class="sticky top-4 space-y-4">
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <h3 class="text-sm font-medium text-gray-900 mb-4">目录</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li>
+                                <a href="#intro" class="text-emerald-600 hover:text-emerald-700">1. 简介</a>
+                            </li>
+                            <li>
+                                <a href="#setup" class="text-gray-600 hover:text-gray-900">2. 环境搭建</a>
+                            </li>
+                            <li>
+                                <a href="#features" class="text-gray-600 hover:text-gray-900">3. 核心特性</a>
+                                <ul class="ml-4 mt-2 space-y-2">
+                                    <li>
+                                        <a href="#routing" class="text-gray-600 hover:text-gray-900">3.1 路由系统</a>
+                                    </li>
+                                    <li>
+                                        <a href="#data-fetching" class="text-gray-600 hover:text-gray-900">3.2 数据获取</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+
+            <!-- 右侧内容 -->
+            <div class="lg:col-span-9">
+                <article class="bg-white rounded-lg shadow-sm p-6">
+                    <!-- 文章标题 -->
+                    <header class="mb-8">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-4">Next.js 最佳实践指南</h1>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <span class="flex items-center">
+                                <i class="far fa-calendar mr-2"></i>
+                                2024-01-15
+                            </span>
+                            <span class="mx-2">·</span>
+                            <span class="flex items-center">
+                                <i class="far fa-clock mr-2"></i>
+                                预计阅读时间 15 分钟
+                            </span>
+                        </div>
+                    </header>
+
+                    <!-- 免费预览部分 -->
+                    <div class="prose max-w-none">
+                        <h2 id="intro" class="text-2xl font-bold text-gray-900 mb-4">1. 简介</h2>
+                        <p class="text-gray-600 mb-6">
+                            Next.js 是一个用于生产环境的 React 框架，它提供了许多开箱即用的功能，如混合静态与服务器渲染、TypeScript 支持、智能打包、路由预加载等。本指南将帮助你深入了解 Next.js 的各项特性，并掌握其最佳实践。
+                        </p>
+
+                        <h2 id="setup" class="text-2xl font-bold text-gray-900 mb-4">2. 环境搭建</h2>
+                        <p class="text-gray-600 mb-6">
+                            使用 create-next-app 是开始一个新的 Next.js 项目的最简单方法。它为你提供了一个预配置的项目结构，包含了所有必要的依赖和配置。
+                        </p>
+
+                        <!-- 会员解锁提示 -->
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-white"></div>
+                            <div class="absolute inset-x-0 bottom-0 flex items-center justify-center">
+                                <div class="bg-white p-8 text-center rounded-lg shadow-lg max-w-md mx-auto">
+                                    <i class="fas fa-lock text-emerald-600 text-4xl mb-4"></i>
+                                    <h3 class="text-xl font-bold text-gray-900 mb-2">成为会员，解锁完整内容</h3>
+                                    <p class="text-gray-600 mb-4">订阅会员后可查看本文完整内容，包括详细的代码示例和最佳实践建议。</p>
+                                    <a href="#" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700">
+                                        立即解锁
+                                        <i class="fas fa-arrow-right ml-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 文章底部 -->
+                <div class="mt-8 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <button class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="far fa-thumbs-up mr-2"></i>
+                            点赞
+                        </button>
+                        <button class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="far fa-bookmark mr-2"></i>
+                            收藏
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button class="inline-flex items-center text-gray-400 hover:text-gray-500">
+                            <i class="fas fa-share-alt text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-white mt-12">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="mt-8 border-t border-gray-200 pt-8 md:flex md:items-center md:justify-between">
+                <div class="flex space-x-6 md:order-2">
+                    <a href="#" class="text-gray-400 hover:text-gray-500">
+                        <i class="fab fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-gray-500">
+                        <i class="fab fa-twitter text-xl"></i>
+                    </a>
+                </div>
+                <p class="mt-8 text-base text-gray-400 md:mt-0 md:order-1">
+                    &copy; 2024 Jade Note. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

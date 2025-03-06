@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jade Note - 高保真原型图</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .prototype-container {
+            height: 800px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Jade Note - 高保真原型图展示</h1>
+        
+        <!-- 原型图网格布局 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- 首页原型 -->
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-800">首页</h2>
+                <div class="prototype-container">
+                    <iframe src="home.html" width="100%" height="100%" frameborder="0"></iframe>
+                </div>
+            </div>
+
+            <!-- 定价页原型 -->
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-800">定价页</h2>
+                <div class="prototype-container">
+                    <iframe src="pricing.html" width="100%" height="100%" frameborder="0"></iframe>
+                </div>
+            </div>
+
+            <!-- 登录页原型 -->
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-800">登录页</h2>
+                <div class="prototype-container">
+                    <iframe src="login.html" width="100%" height="100%" frameborder="0"></iframe>
+                </div>
+            </div>
+
+            <!-- 文档详情页原型 -->
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-800">文档详情页</h2>
+                <div class="prototype-container">
+                    <iframe src="doc-detail.html" width="100%" height="100%" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
