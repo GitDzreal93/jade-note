@@ -17,6 +17,7 @@
     "clsx": "^2.1.1",
     "fumadocs": "^0.0.0",
     "fumadocs-ui": "^15.0.15",
+    "markdown-to-jsx": "^7.7.4",
     "next": "15.2.1",
     "next-mdx-remote": "^5.0.0",
     "react": "^19.0.0",
