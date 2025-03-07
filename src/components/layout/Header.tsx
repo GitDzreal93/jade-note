@@ -1,13 +1,31 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { BookOpenIcon } from '@heroicons/react/24/solid';
-import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
+import { usePathname } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client'
 import UserMenu from '../auth/UserMenu';
+import clsx from 'clsx';
 
-export default async function Header() {
-  const cookieStore = cookies()
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export default function Header() {
+  const pathname = usePathname();
+  const [user, setUser] = useState(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <nav className="bg-white shadow-sm">
@@ -19,13 +37,37 @@ export default async function Header() {
               <span className="text-xl font-bold text-gray-900 ml-2">Jade Note</span>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <Link href="/" className="border-emerald-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+              <Link 
+                href="/" 
+                className={clsx(
+                  'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium',
+                  pathname === '/' 
+                    ? 'border-emerald-500 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                )}
+              >
                 首页
               </Link>
-              <Link href="/docs" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+              <Link 
+                href="/docs" 
+                className={clsx(
+                  'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium',
+                  pathname.startsWith('/docs')
+                    ? 'border-emerald-500 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                )}
+              >
                 文档
               </Link>
-              <Link href="/pricing" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+              <Link 
+                href="/pricing" 
+                className={clsx(
+                  'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium',
+                  pathname === '/pricing'
+                    ? 'border-emerald-500 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                )}
+              >
                 定价
               </Link>
             </div>
