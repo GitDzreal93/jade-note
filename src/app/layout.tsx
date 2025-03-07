@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import dynamic from 'next/dynamic';
+
+const ClientLayout = dynamic(() => import('@/components/layout/ClientLayout'));
 
 const geist = Geist({
   subsets: ["latin"],
@@ -20,10 +21,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh">
-      <body className={`${geist.className} bg-gray-50`}>
-        <Header />
-        <main>{children}</main>
-        <Footer />
+      <body className={`${geist.className} min-h-screen bg-gray-50 flex flex-col`}>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
