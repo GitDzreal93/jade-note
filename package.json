@@ -14,6 +14,9 @@
     "@stripe/stripe-js": "^5.9.2",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.1",
+    "clsx": "^2.1.1",
+    "fumadocs": "^0.0.0",
+    "fumadocs-ui": "^15.0.15",
     "next": "15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
