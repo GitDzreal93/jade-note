@@ -1,22 +1,16 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import clsx from 'clsx';
+import { getDocsData } from '@/lib/docs';
+import type { DocNode } from '@/lib/docs';
+import { DocsSidebar } from './DocsSidebar';
 
 interface DocsLayoutProps {
   children: React.ReactNode;
 }
 
-export function DocsLayout({ children }: DocsLayoutProps) {
-  const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
+export async function DocsLayout({ children }: DocsLayoutProps) {
+  // Get the docs data directly from the server
+  const docs = await getDocsData();
+  
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="lg:grid lg:grid-cols-12 lg:gap-8">
@@ -25,58 +19,11 @@ export function DocsLayout({ children }: DocsLayoutProps) {
           <nav className="sticky top-4 space-y-4">
             <div className="bg-white p-4 rounded-lg shadow-sm">
               <h3 className="text-sm font-medium text-gray-900 mb-4">目录</h3>
-              <div className="space-y-1">
-                <div className="font-medium">入门指南</div>
-                <ul className="pl-4 space-y-1">
-                  <li>
-                    <Link 
-                      href="/docs/getting-started" 
-                      className={clsx(
-                        'text-gray-600 hover:text-gray-900', 
-                        pathname === '/docs/getting-started' && 'text-emerald-600 font-medium'
-                      )}
-                    >
-                      快速开始
-                    </Link>
-                  </li>
-                  <li>
-                    <Link 
-                      href="/docs/concepts" 
-                      className={clsx(
-                        'text-gray-600 hover:text-gray-900', 
-                        pathname === '/docs/concepts' && 'text-emerald-600 font-medium'
-                      )}
-                    >
-                      基础概念
-                    </Link>
-                  </li>
-                </ul>
-                <div className="font-medium mt-4">核心功能</div>
-                <ul className="pl-4 space-y-1">
-                  <li>
-                    <Link 
-                      href="/docs/writing" 
-                      className={clsx(
-                        'text-gray-600 hover:text-gray-900', 
-                        pathname === '/docs/writing' && 'text-emerald-600 font-medium'
-                      )}
-                    >
-                      文档编写
-                    </Link>
-                  </li>
-                  <li>
-                    <Link 
-                      href="/docs/membership" 
-                      className={clsx(
-                        'text-gray-600 hover:text-gray-900', 
-                        pathname === '/docs/membership' && 'text-emerald-600 font-medium'
-                      )}
-                    >
-                      会员解锁
-                    </Link>
-                  </li>
-                </ul>
-              </div>
+              {docs.length === 0 ? (
+                <div className="text-gray-500">暂无文档</div>
+              ) : (
+                <DocsSidebar docs={docs} />
+              )}
             </div>
           </nav>
         </div>

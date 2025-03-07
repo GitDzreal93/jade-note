@@ -1,0 +1,74 @@
+# 项目结构
+
+本文档详细介绍了 Jade Note 项目的目录结构和各个组件的职责。
+
+## 目录结构
+
+```
+├── docs/               # 文档目录
+│   ├── docs.json     # 文档结构配置
+│   ├── quickstart.mdx # 快速开始文档
+│   ├── dev_guide/    # 开发指南文档
+│   └── best_practices/ # 最佳实践文档
+├── public/            # 静态资源
+├── src/               # 源代码
+│   ├── app/          # Next.js App Router
+│   │   ├── docs/    # 文档相关路由
+│   │   └── page.tsx # 首页
+│   ├── components/   # React 组件
+│   │   ├── docs/    # 文档相关组件
+│   │   └── ui/      # 通用 UI 组件
+│   └── lib/          # 工具函数
+│       └── docs.ts    # 文档处理函数
+├── tailwind.config.ts # Tailwind CSS 配置
+├── next.config.mjs    # Next.js 配置
+└── package.json      # 项目配置
+```
+
+## 核心目录说明
+
+### docs/
+
+文档目录存放所有的 MDX 格式文档：
+
+- `docs.json` - 定义文档的结构和元数据
+- `*.mdx` - MDX 格式的文档文件
+- `*/` - 分类目录，如 `dev_guide/`、`best_practices/`
+
+### src/app
+
+Next.js 14 的应用路由目录，采用 App Router 和 React Server Components：
+
+- `layout.tsx` - 全局布局组件
+- `page.tsx` - 首页组件
+- `docs/[slug]/page.tsx` - 文档详情页
+- `docs/page.tsx` - 文档列表页
+
+### src/components
+
+可复用的 React 组件，按功能分类：
+
+- `docs/` - 文档相关组件，如目录、导航等
+- `ui/` - 通用 UI 组件，如按钮、卡片等
+
+### src/lib
+
+工具函数和业务逻辑：
+
+- `docs.ts` - 文档处理函数，包括 MDX 解析和路由处理
+
+## 开发建议
+
+1. 文档组织
+   - 将文档按主题分类存放在对应目录下
+   - 在 `docs.json` 中维护文档的结构和元数据
+   - 使用有意义的文件名和目录名
+
+2. 组件开发
+   - 采用 React Server Components 提升性能
+   - 使用 TypeScript 类型定义确保类型安全
+   - 保持组件的单一职责
+
+3. 样式管理
+   - 使用 Tailwind CSS 的原子类进行样式开发
+   - 在 `tailwind.config.ts` 中配置主题和扩展

@@ -1,0 +1,182 @@
+# 性能优化
+
+本文档介绍了项目中常用的性能优化技巧和最佳实践。
+
+## React 性能优化
+
+### 1. 避免不必要的重渲染
+
+```typescript
+// 使用 React.memo 缓存组件
+const ExpensiveComponent = React.memo(({ data }) => {
+  return <div>{/* 渲染大量数据 */}</div>;
+});
+
+// 使用 useMemo 缓存计算结果
+const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
+
+// 使用 useCallback 缓存函数
+const memoizedCallback = useCallback(
+  () => {
+    doSomething(a, b);
+  },
+  [a, b],
+);
+```
+
+### 2. 虚拟列表
+
+对于长列表，使用虚拟化技术只渲染可见区域：
+
+```typescript
+import { useVirtualizer } from '@tanstack/react-virtual';
+
+function VirtualList({ items }) {
+  const rowVirtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 35,
+  });
+
+  return (
+    <div ref={parentRef}>
+      {rowVirtualizer.getVirtualItems().map((virtualRow) => (
+        <div key={virtualRow.index}>
+          {items[virtualRow.index]}
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+## 图片优化
+
+### 1. 响应式图片
+
+```typescript
+import Image from 'next/image';
+
+function ResponsiveImage() {
+  return (
+    <Image
+      src="/example.jpg"
+      alt="Example"
+      width={800}
+      height={600}
+      sizes="(max-width: 768px) 100vw, 800px"
+      priority={true}
+    />
+  );
+}
+```
+
+### 2. 延迟加载
+
+```typescript
+// 使用 Next.js 的 dynamic import
+const DynamicComponent = dynamic(() => import('./DynamicComponent'), {
+  loading: () => <LoadingSpinner />,
+  ssr: false,
+});
+```
+
+## 数据获取优化
+
+### 1. 数据缓存
+
+```typescript
+// 使用 SWR 进行数据缓存
+import useSWR from 'swr';
+
+function Profile() {
+  const { data, error } = useSWR('/api/user', fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 2000,
+  });
+
+  if (error) return <div>Failed to load</div>;
+  if (!data) return <div>Loading...</div>;
+  return <div>Hello {data.name}!</div>;
+}
+```
+
+### 2. 预加载数据
+
+```typescript
+// 使用 Next.js 的 generateStaticParams
+export async function generateStaticParams() {
+  const posts = await getPosts();
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+```
+
+## 构建优化
+
+### 1. 代码分割
+
+```typescript
+// 路由级别的代码分割
+const routes = {
+  '/': dynamic(() => import('./pages/Home')),
+  '/about': dynamic(() => import('./pages/About')),
+  '/contact': dynamic(() => import('./pages/Contact')),
+};
+```
+
+### 2. Tree Shaking
+
+```typescript
+// 使用命名导入而不是默认导入
+import { Button } from '@/components/ui';
+// 而不是
+// import UI from '@/components/ui';
+```
+
+## 监控和分析
+
+### 1. 性能指标
+
+```typescript
+// 使用 Web Vitals 监控性能
+import { getCLS, getFID, getLCP } from 'web-vitals';
+
+function reportWebVitals({ id, name, value }) {
+  // 发送到分析服务
+  analytics.send({
+    metric: name,
+    value: Math.round(name === 'CLS' ? value * 1000 : value),
+    id,
+  });
+}
+```
+
+### 2. 错误监控
+
+```typescript
+// 使用错误边界捕获渲染错误
+class ErrorBoundary extends React.Component {
+  componentDidCatch(error, errorInfo) {
+    logErrorToService(error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <h1>Something went wrong.</h1>;
+    }
+    return this.props.children;
+  }
+}
+```
+
+## 检查清单
+
+- [ ] 使用生产构建
+- [ ] 启用 gzip 压缩
+- [ ] 优化图片和静态资源
+- [ ] 实施代码分割
+- [ ] 配置适当的缓存策略
+- [ ] 监控关键性能指标
+- [ ] 定期进行性能审计

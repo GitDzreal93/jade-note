@@ -1,0 +1,88 @@
+[
+  {
+    "depth": 0,
+    "title": "快速开始",
+    "node_token": "quickstart",
+    "parent_node_token": "",
+    "obj_create_time": "1709911852",
+    "obj_edit_time": "1709911852",
+    "obj_token": "qs_token",
+    "children": [],
+    "has_child": false,
+    "slug": "quickstart",
+    "position": 0,
+    "filename": "quickstart.mdx"
+  },
+  {
+    "depth": 0,
+    "title": "开发指南",
+    "node_token": "dev_guide",
+    "parent_node_token": "",
+    "obj_create_time": "1709911852",
+    "obj_edit_time": "1709911852",
+    "obj_token": "dg_token",
+    "children": [
+      {
+        "depth": 1,
+        "title": "项目结构",
+        "node_token": "project_structure",
+        "parent_node_token": "dev_guide",
+        "obj_create_time": "1709911852",
+        "obj_edit_time": "1709911852",
+        "obj_token": "ps_token",
+        "children": [],
+        "has_child": false,
+        "slug": "dev_guide/project_structure",
+        "position": 0,
+        "filename": "dev_guide/project_structure.mdx"
+      },
+      {
+        "depth": 1,
+        "title": "开发规范",
+        "node_token": "coding_standards",
+        "parent_node_token": "dev_guide",
+        "obj_create_time": "1709911852",
+        "obj_edit_time": "1709911852",
+        "obj_token": "cs_token",
+        "children": [],
+        "has_child": false,
+        "slug": "dev_guide/coding_standards",
+        "position": 1,
+        "filename": "dev_guide/coding_standards.mdx"
+      }
+    ],
+    "has_child": true,
+    "slug": "dev_guide",
+    "position": 1,
+    "filename": "dev_guide.mdx"
+  },
+  {
+    "depth": 0,
+    "title": "最佳实践",
+    "node_token": "best_practices",
+    "parent_node_token": "",
+    "obj_create_time": "1709911852",
+    "obj_edit_time": "1709911852",
+    "obj_token": "bp_token",
+    "children": [
+      {
+        "depth": 1,
+        "title": "性能优化",
+        "node_token": "performance",
+        "parent_node_token": "best_practices",
+        "obj_create_time": "1709911852",
+        "obj_edit_time": "1709911852",
+        "obj_token": "perf_token",
+        "children": [],
+        "has_child": false,
+        "slug": "best_practices/performance",
+        "position": 0,
+        "filename": "best_practices/performance.mdx"
+      }
+    ],
+    "has_child": true,
+    "slug": "best_practices",
+    "position": 2,
+    "filename": "best_practices.mdx"
+  }
+]
