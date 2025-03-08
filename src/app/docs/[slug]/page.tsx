@@ -6,6 +6,7 @@ import { CalendarIcon, ClockIcon, BookmarkIcon, ShareIcon } from '@heroicons/rea
 import { HandThumbUpIcon, CodeBracketIcon } from '@heroicons/react/24/outline';
 import { findDocBySlug, getDocContent, getDocsData } from '@/lib/docs';
 import Markdown from 'markdown-to-jsx';
+import { markdownOverrides } from '../markdownConfig';
 
 // Define simple page props interface that matches what Next.js provides
 interface PageProps {
@@ -18,44 +19,31 @@ export const metadata = {
 
 export default async function DocumentPage(props: PageProps) {
   try {
-    console.log('开始处理文档页面请求...');
     // Get and process the slug safely using an immediately-invoked async function
     const normalizedSlug = await (async () => {
-      console.log('开始处理 slug 参数...');
-      // Get the raw slug value
       const paramsObj = await props.params;
       const rawSlug = paramsObj.slug;
       
       if (!rawSlug) {
-        console.error('无效的 slug 参数');
         notFound();
       }
       
       // Process the slug
       const decodedSlug = decodeURIComponent(rawSlug);
-      const processedSlug = decodedSlug.replace(/\/+/g, '/');
-      console.log('处理后的 slug:', processedSlug);
-      return processedSlug;
+      return decodedSlug.replace(/\/+/g, '/');
     })();
     
-    console.log('开始查找文档数据...');
     // Find the document using the processed slug
     const docs = await getDocsData();
     const doc = await findDocBySlug(normalizedSlug);
     
     if (!doc) {
-      console.error('未找到对应的文档:', normalizedSlug);
       notFound();
     }
     
-    console.log('找到文档:', doc.title);
-
-    console.log('开始获取文档内容...');
     const content = await getDocContent(doc.filename);
-    console.log('文档内容获取状态:', content ? '成功' : '失败');
 
     if (!content) {
-      console.log('文档内容为空，显示占位信息');
       return (
         <article className="bg-white rounded-lg shadow-sm p-6">
           <header className="mb-8">
@@ -74,7 +62,6 @@ export default async function DocumentPage(props: PageProps) {
       );
     }
     
-    console.log('开始渲染文档内容...');
 
     try {
       return (
@@ -99,106 +86,12 @@ export default async function DocumentPage(props: PageProps) {
               <div className="mdx-content">
                 <Markdown options={{
                   overrides: {
+                    ...markdownOverrides,
+                    // Override the 'a' component to use Next.js Link
                     a: {
                       component: Link,
                       props: {
                         className: 'text-emerald-600 hover:text-emerald-500'
-                      }
-                    },
-                    h1: {
-                      component: 'h1',
-                      props: {
-                        className: 'text-3xl font-bold mt-8 mb-4 text-gray-900'
-                      }
-                    },
-                    h2: {
-                      component: 'h2',
-                      props: {
-                        className: 'text-2xl font-bold mt-6 mb-3 text-gray-900'
-                      }
-                    },
-                    h3: {
-                      component: 'h3',
-                      props: {
-                        className: 'text-xl font-semibold mt-5 mb-2 text-gray-900'
-                      }
-                    },
-                    h4: {
-                      component: 'h4',
-                      props: {
-                        className: 'text-lg font-semibold mt-4 mb-2 text-gray-900'
-                      }
-                    },
-                    h5: {
-                      component: 'h5',
-                      props: {
-                        className: 'text-base font-semibold mt-3 mb-1 text-gray-900'
-                      }
-                    },
-                    h6: {
-                      component: 'h6',
-                      props: {
-                        className: 'text-sm font-semibold mt-3 mb-1 text-gray-900'
-                      }
-                    },
-                    p: {
-                      component: 'p',
-                      props: {
-                        className: 'my-4 text-gray-600 leading-relaxed'
-                      }
-                    },
-                    ul: {
-                      component: 'ul',
-                      props: {
-                        className: 'list-disc pl-6 my-4 text-gray-600'
-                      }
-                    },
-                    ol: {
-                      component: 'ol',
-                      props: {
-                        className: 'list-decimal pl-6 my-4 text-gray-600'
-                      }
-                    },
-                    li: {
-                      component: 'li',
-                      props: {
-                        className: 'mb-2'
-                      }
-                    },
-                    blockquote: {
-                      component: 'blockquote',
-                      props: {
-                        className: 'pl-4 border-l-4 border-emerald-500 italic text-gray-700 my-4'
-                      }
-                    },
-                    hr: {
-                      component: 'hr',
-                      props: {
-                        className: 'my-6 border-t border-gray-200'
-                      }
-                    },
-                    table: {
-                      component: 'table',
-                      props: {
-                        className: 'min-w-full divide-y divide-gray-200 my-6'
-                      }
-                    },
-                    thead: {
-                      component: 'thead',
-                      props: {
-                        className: 'bg-gray-50'
-                      }
-                    },
-                    th: {
-                      component: 'th',
-                      props: {
-                        className: 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
-                      }
-                    },
-                    tbody: {
-                      component: 'tbody',
-                      props: {
-                        className: 'bg-white divide-y divide-gray-200'
                       }
                     },
                     tr: {
