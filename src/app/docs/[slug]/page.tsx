@@ -1,3 +1,4 @@
+import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronRightIcon } from '@heroicons/react/24/solid';
@@ -95,9 +96,21 @@ export default async function DocumentPage(props: PageProps) {
 
           <div className="prose prose-emerald prose-headings:text-gray-900 prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-gray-600 prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:text-emerald-500 prose-code:text-emerald-600 prose-code:bg-emerald-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-100 max-w-none">
             {content ? (
-              <Markdown>
-                {content}
-              </Markdown>
+              <div className="mdx-content">
+                <Markdown options={{
+                  overrides: {
+                    a: {
+                      component: Link,
+                      props: {
+                        className: 'text-emerald-600 hover:text-emerald-500'
+                      }
+                    }
+                  },
+                  wrapper: React.Fragment
+                }}>
+                  {content}
+                </Markdown>
+              </div>
             ) : (
               <p className="text-gray-600">无法渲染文档内容，请稍后再试。</p>
             )}
@@ -106,6 +119,7 @@ export default async function DocumentPage(props: PageProps) {
       );
     } catch (renderError) {
       console.error('渲染 MDX 内容时出错:', renderError);
+      logErrorSafely('MDX 渲染错误', renderError);
       return (
         <article className="bg-white rounded-lg shadow-sm p-6">
           <header className="mb-8">
@@ -119,13 +133,33 @@ export default async function DocumentPage(props: PageProps) {
     }
   } catch (error) {
     console.error('文档页面渲染错误:', error);
-    if (error instanceof Error) {
-      console.error('错误详情:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
-    }
+    const logErrorSafely = (prefix: string, err: unknown) => {
+      console.error(`${prefix}:`, err);
+      
+      const errorInfo: Record<string, string> = {};
+      
+      if (err && typeof err === 'object') {
+        if ('message' in err && err.message) {
+          errorInfo.message = String(err.message);
+        }
+        
+        if ('name' in err && err.name) {
+          errorInfo.name = String(err.name);
+        }
+        
+        if ('stack' in err && err.stack) {
+          errorInfo.stack = String(err.stack).split('\n').slice(0, 3).join('\n');
+        } else {
+          errorInfo.stack = 'No stack trace available';
+        }
+      } else if (err !== null && err !== undefined) {
+        errorInfo.value = String(err);
+      } else {
+        errorInfo.value = '未知错误 (null 或 undefined)';
+      }
+      
+      console.error('错误详情:', errorInfo);
+    };
     return (
       <article className="bg-white rounded-lg shadow-sm p-6">
         <header className="mb-8">

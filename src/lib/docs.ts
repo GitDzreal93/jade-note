@@ -104,9 +104,20 @@ export const getDocContent = cache(async (filename: string) => {
     const source = await readFile(filePath, 'utf8');
     console.log('文件内容读取成功, 内容长度:', source.length);
     
-    // 直接返回 markdown 源码，不进行编译
-    // 在页面组件中使用专门的 Markdown 渲染组件处理
-    return source;
+    // 对 MDX 内容进行预处理，确保其能正确渲染
+    // 处理代码块的格式，确保可以正确识别语言
+    const processedSource = source
+      // 确保代码块的格式正确，如果没有指定语言，则添加空语言标识符
+      .replace(/```(\s*)(\n|\r\n)/g, '```text$2')
+      // 解决可能的空行在代码块中的问题
+      .replace(/```(\w+)\s*\n\s*\n/g, '```$1\n')
+      // 确保换行符一致性
+      .replace(/\r\n/g, '\n');
+      
+    console.log('内容预处理完成');
+    
+    // 返回处理后的 MDX 内容
+    return processedSource;
   } catch (error) {
     console.error('Error loading doc content:', error);
     return null;
