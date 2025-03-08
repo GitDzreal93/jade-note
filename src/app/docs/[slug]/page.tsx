@@ -104,6 +104,72 @@ export default async function DocumentPage(props: PageProps) {
                       props: {
                         className: 'text-emerald-600 hover:text-emerald-500'
                       }
+                    },
+                    h1: {
+                      component: 'h1',
+                      props: {
+                        className: 'text-3xl font-bold mt-8 mb-4 text-gray-900'
+                      }
+                    },
+                    h2: {
+                      component: 'h2',
+                      props: {
+                        className: 'text-2xl font-bold mt-6 mb-3 text-gray-900'
+                      }
+                    },
+                    h3: {
+                      component: 'h3',
+                      props: {
+                        className: 'text-xl font-semibold mt-5 mb-2 text-gray-900'
+                      }
+                    },
+                    h4: {
+                      component: 'h4',
+                      props: {
+                        className: 'text-lg font-semibold mt-4 mb-2 text-gray-900'
+                      }
+                    },
+                    h5: {
+                      component: 'h5',
+                      props: {
+                        className: 'text-base font-semibold mt-3 mb-1 text-gray-900'
+                      }
+                    },
+                    h6: {
+                      component: 'h6',
+                      props: {
+                        className: 'text-sm font-semibold mt-3 mb-1 text-gray-900'
+                      }
+                    },
+                    p: {
+                      component: 'p',
+                      props: {
+                        className: 'my-4 text-gray-600'
+                      }
+                    },
+                    ul: {
+                      component: 'ul',
+                      props: {
+                        className: 'list-disc pl-6 my-4 text-gray-600'
+                      }
+                    },
+                    ol: {
+                      component: 'ol',
+                      props: {
+                        className: 'list-decimal pl-6 my-4 text-gray-600'
+                      }
+                    },
+                    li: {
+                      component: 'li',
+                      props: {
+                        className: 'mb-1'
+                      }
+                    },
+                    code: {
+                      component: 'code',
+                      props: {
+                        className: 'bg-emerald-50 text-emerald-600 px-1 py-0.5 rounded'
+                      }
                     }
                   },
                   wrapper: React.Fragment
