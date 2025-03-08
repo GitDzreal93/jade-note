@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { ChevronRightIcon } from '@heroicons/react/24/solid';
 import { CalendarIcon, ClockIcon, BookmarkIcon, ShareIcon } from '@heroicons/react/24/outline';
 import { HandThumbUpIcon, CodeBracketIcon } from '@heroicons/react/24/outline';
-import { findDocBySlug, getDocContent, getDocsData } from '@/lib/docs';
+import { findDocBySlug, getDocContent, getDocsData, getSlugFromParams } from '@/lib/docs';
 import Markdown from 'markdown-to-jsx';
 import { markdownOverrides } from '../markdownConfig';
 
@@ -19,19 +19,12 @@ export const metadata = {
 
 export default async function DocumentPage(props: PageProps) {
   try {
-    // Get and process the slug safely using an immediately-invoked async function
-    const normalizedSlug = await (async () => {
-      const paramsObj = await props.params;
-      const rawSlug = paramsObj.slug;
-      
-      if (!rawSlug) {
-        notFound();
-      }
-      
-      // Process the slug
-      const decodedSlug = decodeURIComponent(rawSlug);
-      return decodedSlug.replace(/\/+/g, '/');
-    })();
+    // Get and process the slug safely using getSlugFromParams
+    const normalizedSlug = await getSlugFromParams(props.params);
+    
+    if (!normalizedSlug) {
+      notFound();
+    }
     
     // Find the document using the processed slug
     const docs = await getDocsData();

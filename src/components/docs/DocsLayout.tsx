@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getDocsData } from '@/lib/docs';
 import type { DocNode } from '@/lib/docs';
-import { DocsSidebar } from './DocsSidebar';
+import DocsSidebar from './DocsSidebar';
 
 interface DocsLayoutProps {
   children: React.ReactNode;
