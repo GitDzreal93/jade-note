@@ -11,13 +11,17 @@ const sortByPosition = (items: DocNode[]) => [...items].sort((a, b) => a.positio
 // 提取通用的文档链接组件
 const DocLink = ({ doc, isActive }: { doc: DocNode; isActive: boolean }) => {
   // 规范化链接路径
-  const href = `/docs/${doc.slug.replace(/^\/+|\/+$/g, '')}`;
+  const normalizedSlug = doc.slug.replace(/^\/+|\/+$/g, '');
+  const href = `/docs/${normalizedSlug}`;
   
   console.log('渲染文档链接:', { 
     title: doc.title, 
-    slug: doc.slug,
+    originalSlug: doc.slug,
+    normalizedSlug,
     href,
-    isActive 
+    isActive,
+    hasChildren: doc.children?.length > 0,
+    children: doc.children?.map(c => ({ title: c.title, slug: c.slug }))
   });
   
   return (
@@ -39,62 +43,114 @@ export default function DocsSidebar({ docs }: { docs: DocNode[] }) {
   
   // Sort docs by position to ensure correct order
   const sortedDocs = sortByPosition(docs);
-  console.log('文档数据:', docs.map(d => ({ 
-    title: d.title, 
-    slug: d.slug, 
-    children: d.children?.map(c => ({ title: c.title, slug: c.slug })) 
-  })));
+  console.log('文档数据:', {
+    totalDocs: docs.length,
+    docs: docs.map(d => ({ 
+      title: d.title, 
+      slug: d.slug,
+      hasChildren: d.children?.length > 0,
+      children: d.children?.map(c => ({ 
+        title: c.title, 
+        slug: c.slug,
+        filename: c.filename
+      })),
+      filename: d.filename
+    }))
+  });
 
   // 检查一个文档是否处于活动状态
   const isDocActive = (doc: DocNode) => {
+    if (!pathname) {
+      console.log('路径为空');
+      return false;
+    }
+
     // 规范化路径，移除开头和结尾的斜杠
-    const normalizedPathname = pathname?.replace(/^\/+|\/+$/g, '');
+    const normalizedPathname = pathname.replace(/^\/+|\/+$/g, '');
     const normalizedDocPath = `docs/${doc.slug}`.replace(/^\/+|\/+$/g, '');
     
-    // 检查是否为当前文档或其子文档
-    const isCurrentDoc = normalizedPathname === normalizedDocPath;
-    const isChildDoc = doc.children?.some(child => {
-      const normalizedChildPath = `docs/${child.slug}`.replace(/^\/+|\/+$/g, '');
-      const isMatch = normalizedChildPath === normalizedPathname;
-      console.log('检查子文档匹配:', {
-        childTitle: child.title,
-        childSlug: child.slug,
-        normalizedChildPath,
-        normalizedPathname,
-        isMatch
-      });
-      return isMatch;
-    });
-    
-    console.log('检查文档活动状态:', { 
+    console.log('检查文档:', {
       title: doc.title,
+      slug: doc.slug,
+      pathname,
       normalizedPathname,
-      normalizedDocPath,
-      isCurrentDoc,
-      isChildDoc
+      normalizedDocPath
     });
     
-    return isCurrentDoc || isChildDoc;
+    // 直接匹配当前文档
+    const isCurrentDoc = normalizedPathname === normalizedDocPath;
+    if (isCurrentDoc) {
+      console.log('找到当前文档:', doc.title);
+      return true;
+    }
+    
+    // 检查子文档
+    if (doc.children?.length) {
+      for (const child of doc.children) {
+        const normalizedChildPath = `docs/${child.slug}`.replace(/^\/+|\/+$/g, '');
+        const isChildMatch = normalizedPathname === normalizedChildPath;
+        
+        console.log('检查子文档:', {
+          parentTitle: doc.title,
+          childTitle: child.title,
+          childSlug: child.slug,
+          normalizedChildPath,
+          normalizedPathname,
+          isMatch: isChildMatch
+        });
+        
+        if (isChildMatch) {
+          console.log('找到匹配的子文档:', {
+            parentTitle: doc.title,
+            childTitle: child.title
+          });
+          return true;
+        }
+      }
+    }
+    
+    return false;
   };
 
   // Render child docs for a parent doc
   const renderChildDocs = (parentDoc: DocNode) => {
-    if (!parentDoc.children?.length) return null;
+    if (!parentDoc.children?.length) {
+      console.log('文档没有子节点:', {
+        title: parentDoc.title,
+        slug: parentDoc.slug
+      });
+      return null;
+    }
     
     const sortedChildren = sortByPosition(parentDoc.children);
     console.log('渲染子文档:', { 
-      parent: parentDoc.title, 
+      parentTitle: parentDoc.title, 
       parentSlug: parentDoc.slug,
-      children: sortedChildren.map(c => ({ title: c.title, slug: c.slug }))
+      parentFilename: parentDoc.filename,
+      totalChildren: sortedChildren.length,
+      children: sortedChildren.map(c => ({ 
+        title: c.title, 
+        slug: c.slug,
+        filename: c.filename,
+        position: c.position
+      }))
     });
     
     return (
       <ul className="pl-4 space-y-1 mt-1">
-        {sortedChildren.map(child => (
-          <li key={child.node_token}>
-            <DocLink doc={child} isActive={isDocActive(child)} />
-          </li>
-        ))}
+        {sortedChildren.map(child => {
+          console.log('渲染子文档链接:', {
+            parentTitle: parentDoc.title,
+            childTitle: child.title,
+            childSlug: child.slug,
+            childFilename: child.filename
+          });
+          return (
+            <li key={child.node_token}>
+              <DocLink doc={child} isActive={isDocActive(child)} />
+            </li>
+          );
+        })}
       </ul>
     );
   };

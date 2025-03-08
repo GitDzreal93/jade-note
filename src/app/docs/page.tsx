@@ -26,8 +26,18 @@ export default async function DocsPage() {
   const sortedDocs = [...docs].sort((a, b) => a.position - b.position);
 
   const renderDocItem = (doc: DocNode) => {
-    const docPath = doc.slug;
+    // 规范化路径
+    const normalizedSlug = doc.slug.replace(/^\/+|\/+$/g, '');
+    const docPath = normalizedSlug;
     const hasChildren = doc.children && doc.children.length > 0;
+    
+    console.log('渲染文档链接:', {
+      title: doc.title,
+      originalSlug: doc.slug,
+      normalizedSlug,
+      docPath,
+      hasChildren
+    });
     
     // Sort children by position
     const sortedChildren = hasChildren 
@@ -55,7 +65,15 @@ export default async function DocsPage() {
         </div>
         {hasChildren && (
           <div className="mt-4 pl-4 border-l border-gray-200 space-y-4">
-            {sortedChildren.map((child: DocNode) => renderDocItem(child))}
+            {sortedChildren.map((child: DocNode) => {
+              console.log('渲染子文档链接:', {
+                parentTitle: doc.title,
+                childTitle: child.title,
+                childSlug: child.slug,
+                childFilename: child.filename
+              });
+              return renderDocItem(child);
+            })}
           </div>
         )}
       </div>

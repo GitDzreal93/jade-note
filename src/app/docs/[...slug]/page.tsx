@@ -19,27 +19,91 @@ export const metadata = {
 
 export default async function DocumentPage(props: PageProps) {
   try {
-    // Get and process the slug safely using getSlugFromParams
-    const normalizedSlug = await getSlugFromParams(props.params);
-    
-    if (!normalizedSlug) {
+    console.log('开始处理文档路由:', props.params);
+
+    // 处理路径
+    let slug: string;
+    if (Array.isArray(props.params.slug)) {
+      slug = props.params.slug.join('/');
+    } else {
+      slug = props.params.slug;
+    }
+
+    if (!slug) {
+      console.log('缺少 slug 参数');
       notFound();
     }
+
+    // 规范化路径
+    const normalizedSlug = slug.replace(/^\/+|\/+$/g, '');
+    console.log('规范化后的路径:', {
+      originalSlug: props.params.slug,
+      processedSlug: slug,
+      normalizedSlug
+    });
     
-    // Find the document using the processed slug
+    // 查找文档
     const docs = await getDocsData();
+    console.log('获取到文档数据:', docs.map(d => ({
+      title: d.title,
+      slug: d.slug,
+      hasChildren: d.children?.length > 0,
+      children: d.children?.map(c => ({ 
+        title: c.title, 
+        slug: c.slug,
+        filename: c.filename
+      }))
+    })));
+
     const doc = await findDocBySlug(normalizedSlug);
+    console.log('查找文档结果:', doc ? {
+      title: doc.title,
+      slug: doc.slug,
+      filename: doc.filename,
+      hasChildren: doc.children?.length > 0,
+      path: doc.filename.replace(/^\/+|\/+$/g, '')
+    } : '未找到文档');
     
     if (!doc) {
+      console.log('未找到文档，返回 404');
       notFound();
     }
     
-    const content = await getDocContent(doc.filename);
+    // 检查文档类型
+    const isChildDoc = doc.filename.includes('/');
+    console.log('检查文档类型:', {
+      filename: doc.filename,
+      isChildDoc,
+      path: doc.filename.replace(/^\/+|\/+$/g, '')
+    });
+    
+    // 规范化文件路径
+    const normalizedPath = doc.filename.replace(/^\/+|\/+$/g, '');
+    console.log('尝试读取文档内容:', {
+      filename: doc.filename,
+      normalizedPath,
+      isChildDoc
+    });
+    
+    const content = await getDocContent(normalizedPath);
+    console.log('文档内容读取结果:', {
+      path: normalizedPath,
+      hasContent: !!content,
+      contentLength: content?.length
+    });
 
     if (!content) {
       return (
         <article className="bg-white rounded-lg shadow-sm p-6">
           <header className="mb-8">
+            {isChildDoc && (
+              <div className="flex items-center text-sm text-gray-500 mb-4">
+                <Link href={`/docs/${doc.slug.split('/')[0]}`} className="hover:text-emerald-600 flex items-center">
+                  <ChevronRightIcon className="h-4 w-4 mr-1" />
+                  返回上级
+                </Link>
+              </div>
+            )}
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{doc.title}</h1>
             <div className="flex items-center text-sm text-gray-500">
               <span className="flex items-center">
@@ -50,6 +114,7 @@ export default async function DocumentPage(props: PageProps) {
           </header>
           <div className="prose max-w-none">
             <p className="text-gray-600">文档内容不存在或正在编辑中</p>
+            <p className="text-gray-500">文件路径: {normalizedPath}</p>
           </div>
         </article>
       );
@@ -60,6 +125,14 @@ export default async function DocumentPage(props: PageProps) {
       return (
         <article className="bg-white rounded-lg shadow-sm p-6">
           <header className="mb-8">
+            {isChildDoc && (
+              <div className="flex items-center text-sm text-gray-500 mb-4">
+                <Link href={`/docs/${doc.slug.split('/')[0]}`} className="hover:text-emerald-600 flex items-center">
+                  <ChevronRightIcon className="h-4 w-4 mr-1" />
+                  返回上级
+                </Link>
+              </div>
+            )}
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{doc.title}</h1>
             <div className="flex items-center text-sm text-gray-500">
               <span className="flex items-center">
@@ -69,7 +142,7 @@ export default async function DocumentPage(props: PageProps) {
               <span className="mx-2">·</span>
               <span className="flex items-center">
                 <ClockIcon className="mr-2 h-4 w-4" />
-                预计阅读时间 5 分钟
+                预计阅读时间 {Math.ceil((content?.length || 0) / 500)} 分钟
               </span>
             </div>
           </header>
@@ -82,10 +155,29 @@ export default async function DocumentPage(props: PageProps) {
                     ...markdownOverrides,
                     // Override the 'a' component to use Next.js Link
                     a: {
-                      component: Link,
-                      props: {
-                        className: 'text-emerald-600 hover:text-emerald-500'
-                      }
+                      component: ({ href, ...props }) => {
+                        // 检查是否是内部文档链接
+                        if (href?.startsWith('/docs/')) {
+                          return (
+                            <Link
+                              href={href}
+                              className="text-emerald-600 hover:text-emerald-500 inline-flex items-center"
+                              {...props}
+                            />
+                          );
+                        }
+                        // 外部链接
+                        return (
+                          <a
+                            href={href}
+                            className="text-emerald-600 hover:text-emerald-500"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            {...props}
+                          />
+                        );
+                      },
+                      props: {}
                     },
                     tr: {
                       component: 'tr',
@@ -174,7 +266,10 @@ export default async function DocumentPage(props: PageProps) {
       );
     } catch (renderError) {
       console.error('渲染 MDX 内容时出错:', renderError);
-      logErrorSafely('MDX 渲染错误', renderError);
+      console.error('错误详情:', {
+        name: renderError instanceof Error ? renderError.name : 'Unknown',
+        message: renderError instanceof Error ? renderError.message : String(renderError)
+      });
       return (
         <article className="bg-white rounded-lg shadow-sm p-6">
           <header className="mb-8">
@@ -187,34 +282,11 @@ export default async function DocumentPage(props: PageProps) {
       );
     }
   } catch (error) {
-    console.error('文档页面渲染错误:', error);
-    const logErrorSafely = (prefix: string, err: unknown) => {
-      console.error(`${prefix}:`, err);
-      
-      const errorInfo: Record<string, string> = {};
-      
-      if (err && typeof err === 'object') {
-        if ('message' in err && err.message) {
-          errorInfo.message = String(err.message);
-        }
-        
-        if ('name' in err && err.name) {
-          errorInfo.name = String(err.name);
-        }
-        
-        if ('stack' in err && err.stack) {
-          errorInfo.stack = String(err.stack).split('\n').slice(0, 3).join('\n');
-        } else {
-          errorInfo.stack = 'No stack trace available';
-        }
-      } else if (err !== null && err !== undefined) {
-        errorInfo.value = String(err);
-      } else {
-        errorInfo.value = '未知错误 (null 或 undefined)';
-      }
-      
-      console.error('错误详情:', errorInfo);
-    };
+    console.error('文档页面渲染错误:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack?.split('\n').slice(0, 3).join('\n') : undefined
+    });
     return (
       <article className="bg-white rounded-lg shadow-sm p-6">
         <header className="mb-8">
