@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown 编辑器</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        .editor-toolbar button {
+            @apply p-2 hover:bg-gray-100 rounded;
+        }
+        .editor-toolbar button.active {
+            @apply bg-blue-100 text-blue-600;
+        }
+        .markdown-preview h1 {
+            @apply text-2xl font-bold mt-4 mb-2;
+        }
+        .markdown-preview h2 {
+            @apply text-xl font-bold mt-4 mb-2;
+        }
+        .markdown-preview h3, .markdown-preview h4, .markdown-preview h5 {
+            @apply font-bold mt-3 mb-2;
+        }
+        .markdown-preview ul, .markdown-preview ol {
+            @apply pl-5 my-2;
+        }
+        .markdown-preview ul li {
+            @apply list-disc ml-2;
+        }
+        .markdown-preview ol li {
+            @apply list-decimal ml-2;
+        }
+        .markdown-preview code {
+            @apply font-mono bg-gray-100 px-1 rounded text-sm;
+        }
+        /* 新的代码块样式 */
+        .code-block {
+            @apply bg-white rounded-lg shadow my-4 overflow-hidden;
+            border: 1px solid #eaeaea;
+        }
+        .code-block-header {
+            @apply bg-gray-50 py-2 px-4 border-b border-gray-200 flex items-center;
+        }
+        .code-block-content {
+            @apply p-4 font-mono text-sm overflow-x-auto;
+        }
+        .code-block-title {
+            @apply text-base font-bold mb-2;
+        }
+        .language-tag {
+            @apply bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded mr-2 font-mono;
+        }
+        .code-keyword {
+            @apply text-purple-600;
+        }
+        .code-function {
+            @apply text-blue-600;
+        }
+        .code-string {
+            @apply text-green-600;
+        }
+        .code-comment {
+            @apply text-gray-500;
+        }
+        .code-variable {
+            @apply text-orange-500;
+        }
+        .code-property {
+            @apply text-blue-800;
+        }
+        .code-punctuation {
+            @apply text-gray-700;
+        }
+        .code-operator {
+            @apply text-gray-800;
+        }
+        .code-selector {
+            @apply bg-blue-100;
+        }
+        .side-panel {
+            width: 300px;
+        }
+        .editor-main {
+            width: calc(100% - 600px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 py-2 px-4 flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <span class="text-gray-700 font-medium">Markdown 编辑器</span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button class="text-gray-500 hover:text-gray-700 px-2 py-1 rounded text-sm">保存草稿</button>
+            <button class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-sm">显示预览</button>
+            <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm">发布</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex overflow-hidden">
+        <!-- Editor Panel -->
+        <div class="bg-white border-r border-gray-200 flex-none overflow-y-auto p-4 editor-main">
+            <!-- Toolbar -->
+            <div class="editor-toolbar flex items-center border-b border-gray-200 pb-2 mb-3 space-x-1">
+                <button title="标题"><i class="fa fa-heading"></i></button>
+                <button title="粗体" class="font-bold">B</button>
+                <button title="斜体" class="italic">I</button>
+                <button title="删除线"><i class="fa fa-strikethrough"></i></button>
+                <button title="链接"><i class="fa fa-link"></i></button>
+                <button title="图片"><i class="fa fa-image"></i></button>
+                <button title="引用"><i class="fa fa-quote-right"></i></button>
+                <button title="代码"><i class="fa fa-code"></i></button>
+                <button title="无序列表"><i class="fa fa-list-ul"></i></button>
+                <button title="有序列表"><i class="fa fa-list-ol"></i></button>
+                <button title="任务列表"><i class="fa fa-tasks"></i></button>
+                <button title="分隔线"><i class="fa fa-minus"></i></button>
+                <button title="表格"><i class="fa fa-table"></i></button>
+                <button title="清除格式"><i class="fa fa-eraser"></i></button>
+                <button title="帮助"><i class="fa fa-question-circle"></i></button>
+            </div>
+
+            <!-- Editor Content -->
+            <div class="editor-content font-mono text-gray-800 text-sm leading-relaxed">
+                <div class="text-gray-400">```markdown</div>
+                <div class="text-blue-500 font-bold"># 输入文章标题...</div>
+                <div class="text-gray-400">```</div>
+                <br>
+                <div class="text-blue-500 font-bold"># 1. 标题</div>
+                <div class="text-gray-700"># 一级标题</div>
+                <div class="text-gray-700">## 二级标题</div>
+                <div class="text-gray-700">### 三级标题</div>
+                <div class="text-gray-700">#### 四级标题</div>
+                <div class="text-gray-700">##### 五级标题 (小标)</div>
+                <div class="text-gray-700">###### 六级标题 (最小)</div>
+                <div class="text-gray-400">...</div>
+                <br>
+                <div class="text-blue-500 font-bold">## 2. 文本格式</div>
+                <div class="text-red-500">**加粗文本**</div>
+                <div class="text-red-500">*斜体文本*</div>
+                <div class="text-red-500">***加粗斜体文本***</div>
+                <div class="text-red-500">~~删除线文本~~</div>
+                <div class="text-teal-500">`行内代码`</div>
+                <div class="text-orange-500">> 引用文本</div>
+                <div class="text-gray-400">...</div>
+                <br>
+                <div class="text-blue-500 font-bold">## 3. 列表</div>
+                <div class="text-blue-400">### 无序列表</div>
+                <div class="text-gray-400">```markdown</div>
+                <div class="text-gray-700">- 项目 1</div>
+                <div class="text-gray-700">- 项目 2</div>
+                <div class="text-gray-700">  - 子项目 2.1 (缩进 2 空格)</div>
+                <div class="text-gray-700">  - 子项目 2.2</div>
+                <div class="text-gray-400">...</div>
+                <br>
+                <div class="text-blue-400">### 有序列表</div>
+                <div class="text-gray-400">```markdown</div>
+                <div class="text-gray-700">1. 第一项</div>
+                <div class="text-gray-700">2. 第二项</div>
+                <div class="text-gray-700">   1. 嵌套项 2.1 (缩进 3 空格)</div>
+                <div class="text-gray-700">   2. 嵌套项 2.2</div>
+                <div class="text-gray-400">...</div>
+                <br>
+                <div class="text-blue-500 font-bold">## 4. 链接与图片</div>
+                <div class="text-gray-400">```markdown</div>
+                <div class="text-orange-500">[内部链接名称](https://example.com)</div>
+                <div class="text-orange-500">[参考式链接][1]</div>
+                <br>
+                <div class="text-orange-500">![图片描述](https://example.com/image.jpg)</div>
+                <br>
+                <div class="text-orange-500">[1]: https://example.com "显示提示文本"</div>
+                <div class="text-gray-400">...</div>
+                <br>
+                <div class="text-blue-500 font-bold">## 5. 代码块</div>
+                <div class="text-blue-400">### 普通代码块</div>
+                <div class="text-gray-400">```javascript</div>
+                <div class="text-green-600">function hello() {</div>
+                <div class="text-green-600">  console.log("Hello Markdown!");</div>
+                <div class="text-green-600">}</div>
+                <div class="text-gray-400">```</div>
+                <div class="text-gray-400">...</div>
+                <br>
+                <div class="text-blue-400">### 带语法高亮的代码块</div>
+                <div class="text-gray-400">```python</div>
+                <div class="text-green-600">def greet():</div>
+                <div class="text-green-600">    print("Hello Markdown!")</div>
+                <div class="text-gray-400">```</div>
+                <div class="text-gray-400">...</div>
+            </div>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="flex-1 bg-white overflow-y-auto p-4 markdown-preview">
+            <h1 class="text-2xl font-bold mb-4">1. 标题</h1>
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <h1 class="text-2xl font-bold">一级标题</h1>
+                <h2 class="text-xl font-bold">二级标题</h2>
+                <h3 class="text-lg font-bold">三级标题</h3>
+                <h4 class="text-base font-bold">四级标题</h4>
+                <h5 class="text-sm font-bold">五级标题 (小标)</h5>
+                <h6 class="text-xs font-bold">六级标题 (最小)</h6>
+            </div>
+
+            <h2 class="text-xl font-bold mb-4">2. 文本格式</h2>
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <p class="mb-2"><strong>加粗文本</strong></p>
+                <p class="mb-2"><em>斜体文本</em></p>
+                <p class="mb-2"><strong><em>加粗斜体文本</em></strong></p>
+                <p class="mb-2"><del>删除线文本</del></p>
+                <p class="mb-2"><code>行内代码</code></p>
+                <blockquote class="border-l-4 border-gray-300 pl-4 py-1 text-gray-600">引用文本</blockquote>
+            </div>
+
+            <h2 class="text-xl font-bold mb-4">3. 列表</h2>
+            <div class="mb-6">
+                <h3 class="text-lg font-bold mb-2">无序列表</h3>
+                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                    <ul>
+                        <li>项目 1</li>
+                        <li>项目 2
+                            <ul>
+                                <li>子项目 2.1 (缩进 2 空格)</li>
+                                <li>子项目 2.2</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h3 class="text-lg font-bold mb-2">有序列表</h3>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <ol>
+                        <li>第一项</li>
+                        <li>第二项
+                            <ol>
+                                <li>嵌套项 2.1 (缩进 3 空格)</li>
+                                <li>嵌套项 2.2</li>
+                            </ol>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <h2 class="text-xl font-bold mb-4">4. 链接与图片</h2>
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <p class="mb-2"><a href="https://example.com" class="text-blue-600 hover:underline">内部链接名称</a></p>
+                <p class="mb-2"><a href="#" class="text-blue-600 hover:underline">参考式链接</a></p>
+                <div class="my-4">
+                    <img src="/api/placeholder/400/200" alt="图片描述" class="border border-gray-200 rounded max-w-full h-auto">
+                </div>
+                <p class="text-sm text-gray-500">[1]: https://example.com "显示提示文本"</p>
+            </div>
+
+            <h2 class="text-xl font-bold mb-4">5. 代码块</h2>
+            
+            <!-- 普通代码块 - 新样式 -->
+            <div class="code-block">
+                <div class="code-block-title font-bold text-lg mb-2">普通代码块</div>
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                    <div class="p-4 font-mono text-sm leading-relaxed">
+                        <div><span class="code-function">function</span> <span class="code-function">hello</span><span class="code-punctuation">(</span><span class="code-punctuation">)</span> <span class="code-punctuation">{</span></div>
+                        <div class="pl-4"><span class="code-property">console</span><span class="code-punctuation">.</span><span class="code-function">log</span><span class="code-punctuation">(</span><span class="code-string">"Hello Markdown!"</span><span class="code-punctuation">)</span><span class="code-punctuation">;</span></div>
+                        <div><span class="code-punctuation">}</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TypeScript 代码块 - 新样式 -->
+            <div class="code-block mt-6">
+                <div class="code-block-title font-bold text-lg mb-2">带语法高亮的代码块</div>
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                    <div class="code-block-header">
+                        <span class="language-tag">TS</span>
+                        <span class="text-gray-600 text-sm">lib/i18n.ts</span>
+                    </div>
+                    <div class="p-4 font-mono text-sm leading-relaxed">
+                        <div>
+                            <span class="code-keyword">import</span> <span class="code-keyword">type</span> <span class="code-punctuation">{</span> <span class="code-variable">I18nConfig</span> <span class="code-punctuation">}</span> <span class="code-keyword">from</span> <span class="code-string">'fumadocs-core/i18n'</span><span class="code-punctuation">;</span>
+                        </div>
+                        <div class="mt-2">
+                            <span class="code-keyword">export</span> <span class="code-keyword">const</span> <span class="code-variable">i18n</span><span class="code-punctuation">:</span> <span class="code-variable">I18nConfig</span> <span class="code-operator">=</span> <span class="code-punctuation">{</span>
+                        </div>
+                        <div class="pl-4">
+                            <span class="code-property">defaultLanguage</span><span class="code-punctuation">:</span> <span class="code-string">'en'</span><span class="code-punctuation">,</span>
+                        </div>
+                        <div class="pl-4">
+                            <span class="code-property">languages</span><span class="code-punctuation">:</span> <span class="code-punctuation">[</span><span class="code-string">'en'</span><span class="code-punctuation">,</span> <span class="code-string">'cn'</span><span class="code-punctuation">]</span><span class="code-punctuation">,</span>
+                        </div>
+                        <div><span class="code-punctuation">}</span><span class="code-punctuation">;</span></div>
+                    </div>
+                </div>
+                
+                <div class="text-gray-700 my-4">Change your current source configurations.</div>
+                
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                    <div class="code-block-header">
+                        <span class="language-tag">TS</span>
+                        <span class="text-gray-600 text-sm">lib/source.ts</span>
+                        <span class="ml-auto"><i class="fa fa-clipboard"></i></span>
+                    </div>
+                    <div class="p-4 font-mono text-sm leading-relaxed">
+                        <div>
+                            <span class="code-keyword">import</span> <span class="code-punctuation">{</span> <span class="code-variable">i18n</span> <span class="code-punctuation">}</span> <span class="code-keyword">from</span> <span class="code-string">'@/lib/i18n'</span><span class="code-punctuation">;</span>
+                        </div>
+                        <div>
+                            <span class="code-keyword">import</span> <span class="code-punctuation">{</span> <span class="code-variable">loader</span> <span class="code-punctuation">}</span> <span class="code-keyword">from</span> <span class="code-string">'fumadocs-core/source'</span><span class="code-punctuation">;</span>
+                        </div>
+                        <div class="mt-2">
+                            <span class="code-keyword">export</span> <span class="code-keyword">const</span> <span class="code-variable">source</span> <span class="code-operator">=</span> <span class="code-function">loader</span><span class="code-punctuation">(</span><span class="code-punctuation">{</span>
+                        </div>
+                        <div class="pl-4 code-selector">
+                            <span class="code-variable">i18n</span><span class="code-punctuation">,</span>
+                        </div>
+                        <div class="pl-4">
+                            <span class="code-comment">// other options</span>
+                        </div>
+                        <div><span class="code-punctuation">}</span><span class="code-punctuation">)</span><span class="code-punctuation">;</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Style Guide Panel -->
+        <div class="bg-white border-l border-gray-200 flex-none overflow-y-auto p-4 side-panel">
+            <h2 class="text-lg font-medium text-gray-800 mb-4">Tailwind CSS 样式指南</h2>
+            
+            <div class="mb-6">
+                <h3 class="text-md font-medium text-gray-700 mb-2">标题样式</h3>
+                <div class="bg-gray-50 p-3 rounded text-sm">
+                    <p class="mb-1"><code>text-2xl font-bold</code> - 一级标题</p>
+                    <p class="mb-1"><code>text-xl font-bold</code> - 二级标题</p>
+                    <p class="mb-1"><code>text-lg font-bold</code> - 三级标题</p>
+                    <p class="mb-1"><code>text-base font-bold</code> - 四级标题</p>
+                    <p class="mb-1"><code>text-sm font-bold</code> - 五级标题</p>
+                    <p><code>text-xs font-bold</code> - 六级标题</p>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-md font-medium text-gray-700 mb-2">文本格式</h3>
+                <div class="bg-gray-50 p-3 rounded text-sm">
+                    <p class="mb-1"><code>font-bold</code> - 加粗文本</p>
+                    <p class="mb-1"><code>italic</code> - 斜体文本</p>
+                    <p class="mb-1"><code>font-bold italic</code> - 加粗斜体</p>
+                    <p class="mb-1"><code>line-through</code> - 删除线</p>
+                    <p class="mb-1"><code>bg-gray-100 font-mono px-1 rounded</code> - 行内代码</p>
+                    <p><code>border-l-4 pl-4 py-1 text-gray-600</code> - 引用文本</p>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-md font-medium text-gray-700 mb-2">列表样式</h3>
+                <div class="bg-gray-50 p-3 rounded text-sm">
+                    <p class="mb-1"><code>list-disc ml-5</code> - 无序列表项</p>
+                    <p class="mb-1"><code>list-decimal ml-5</code> - 有序列表项</p>
+                    <p class="mb-1"><code>ml-4</code> - 列表嵌套缩进</p>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-md font-medium text-gray-700 mb-2">代码块</h3>
+                <div class="bg-gray-50 p-3 rounded text-sm">
+                    <p class="mb-1"><code>bg-white rounded-lg shadow-sm</code> - 代码块容器</p>
+                    <p class="mb-1"><code>code-block-header</code> - 代码块头部</p>
+                    <p class="mb-1"><code>language-tag</code> - 语言标签</p>
+                    <p class="mb-1"><code>code-keyword</code> - 关键字高亮</p>
+                    <p class="mb-1"><code>code-function</code> - 函数高亮</p>
+                    <p class="mb-1"><code>code-string</code> - 字符串高亮</p>
+                    <p class="mb-1"><code>code-variable</code> - 变量高亮</p>
+                    <p class="mb-1"><code>code-comment</code> - 注释高亮</p>
+                    <p class="mb-1"><code>code-selector</code> - 选中行高亮</p>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-md font-medium text-gray-700 mb-2">布局组件</h3>
+                <div class="bg-gray-50 p-3 rounded text-sm">
+                    <p class="mb-1"><code>flex justify-between items-center</code> - 两端对齐布局</p>
+                    <p class="mb-1"><code>grid grid-cols-2 gap-4</code> - 双列网格</p>
+                    <p class="mb-1"><code>bg-white shadow rounded-lg p-4</code> - 卡片容器</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
