@@ -26,26 +26,6 @@ export function DocsSidebar({ docs }: { docs: DocNode[] }) {
   
   // Sort docs by position to ensure correct order
   const sortedDocs = sortByPosition(docs);
-  
-  // Group docs by categories based on the structure in docs.json
-  const categories = [
-    {
-      title: "入门指南",
-      items: sortedDocs.filter(doc => 
-        doc.title === "快速开始" || 
-        doc.title === "基础概念"
-      )
-    },
-    {
-      title: "核心功能",
-      items: sortedDocs.filter(doc => 
-        doc.title === "开发指南" || 
-        doc.title === "最佳实践" ||
-        doc.title === "文档编写" ||
-        doc.title === "会员解锁"
-      )
-    }
-  ];
 
   // Render child docs for a parent doc
   const renderChildDocs = (parentDoc: DocNode) => {
@@ -66,19 +46,14 @@ export function DocsSidebar({ docs }: { docs: DocNode[] }) {
 
   return (
     <div className="space-y-4">
-      {categories.map((category, index) => (
-        <div key={index} className="space-y-1">
-          <div className="font-medium">{category.title}</div>
-          <ul className="pl-4 space-y-1">
-            {category.items.map(doc => (
-              <li key={doc.node_token}>
-                <DocLink doc={doc} isActive={pathname === `/docs/${doc.slug}`} />
-                {doc.children?.length > 0 && renderChildDocs(doc)}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      <ul className="space-y-1">
+        {sortedDocs.map(doc => (
+          <li key={doc.node_token}>
+            <DocLink doc={doc} isActive={pathname === `/docs/${doc.slug}`} />
+            {doc.children?.length > 0 && renderChildDocs(doc)}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

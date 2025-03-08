@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { LockClosedIcon } from '@heroicons/react/24/solid';
-import { ChevronRightIcon } from '@heroicons/react/24/solid';
+import { LockClosedIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 
 interface MemberContentProps {
@@ -11,9 +10,7 @@ interface MemberContentProps {
 }
 
 export function MemberContent({ children, previewContent }: MemberContentProps) {
-  // TODO: 替换为实际的会员状态检查逻辑
   const [isMember, setIsMember] = useState(false);
-
   if (!isMember) {
     return (
       <div className="relative">
