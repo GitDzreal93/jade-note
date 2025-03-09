@@ -4,33 +4,28 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import clsx from 'clsx';
 import type { DocNode } from '@/lib/docs';
+import { DocsSearch } from './DocsSearch';
 
 // 提取通用的排序函数
 const sortByPosition = (items: DocNode[]) => [...items].sort((a, b) => a.position - b.position);
 
 // 提取通用的文档链接组件
-const DocLink = ({ doc, isActive }: { doc: DocNode; isActive: boolean }) => {
-  // 规范化链接路径
+const DocLink = ({ doc, isActive, depth = 0 }: { doc: DocNode; isActive: boolean; depth?: number }) => {
   const normalizedSlug = doc.slug.replace(/^\/+|\/+$/g, '');
   const href = `/docs/${normalizedSlug}`;
-  
-  console.log('渲染文档链接:', { 
-    title: doc.title, 
-    originalSlug: doc.slug,
-    normalizedSlug,
-    href,
-    isActive,
-    hasChildren: doc.children?.length > 0,
-    children: doc.children?.map(c => ({ title: c.title, slug: c.slug }))
-  });
   
   return (
     <Link 
       href={href}
       className={clsx(
-        'text-gray-600 hover:text-gray-900 block py-1', 
-        isActive && 'text-emerald-600 font-medium'
+        'block py-1.5 px-3 rounded transition-colors duration-150',
+        'text-sm leading-5',
+        isActive 
+          ? 'text-primary-600 bg-primary-50/50 font-medium' 
+          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50',
+        depth === 0 && 'font-medium'
       )}
+      title={doc.title}
     >
       {doc.title}
     </Link>
@@ -137,7 +132,7 @@ export default function DocsSidebar({ docs }: { docs: DocNode[] }) {
     });
     
     return (
-      <ul className="pl-4 space-y-1 mt-1">
+      <ul className="ml-3 pl-3 border-l border-gray-100/70">
         {sortedChildren.map(child => {
           console.log('渲染子文档链接:', {
             parentTitle: parentDoc.title,
@@ -147,7 +142,7 @@ export default function DocsSidebar({ docs }: { docs: DocNode[] }) {
           });
           return (
             <li key={child.node_token}>
-              <DocLink doc={child} isActive={isDocActive(child)} />
+              <DocLink doc={child} isActive={isDocActive(child)} depth={1} />
             </li>
           );
         })}
@@ -156,15 +151,31 @@ export default function DocsSidebar({ docs }: { docs: DocNode[] }) {
   };
 
   return (
-    <div className="space-y-4">
-      <ul className="space-y-1">
-        {sortedDocs.map(doc => (
-          <li key={doc.node_token}>
-            <DocLink doc={doc} isActive={isDocActive(doc)} />
-            {doc.children?.length > 0 && renderChildDocs(doc)}
-          </li>
-        ))}
-      </ul>
+    <div className="h-full flex flex-col bg-white rounded-lg border border-gray-200/70 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+      {/* 搜索区域 */}
+      <div className="flex-none px-4 py-4 border-b border-gray-100">
+        <DocsSearch docs={docs} />
+      </div>
+      
+      {/* 导航区域 */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4">
+        <ul className="space-y-1">
+          {sortedDocs.map(doc => (
+            <li key={doc.node_token} className="space-y-0.5">
+              <DocLink doc={doc} isActive={isDocActive(doc)} depth={0} />
+              {doc.children?.length > 0 && (
+                <ul className="ml-3 pl-3 border-l border-gray-100/70">
+                  {sortByPosition(doc.children).map(child => (
+                    <li key={child.node_token}>
+                      <DocLink doc={child} isActive={isDocActive(child)} depth={1} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      </nav>
     </div>
   );
 }

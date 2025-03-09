@@ -13,30 +13,25 @@ export async function DocsLayout({ children }: DocsLayoutProps) {
   const docs = await getDocsData();
   
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="lg:grid lg:grid-cols-12 lg:gap-8">
-        {/* Left Sidebar - Navigation Tree */}
-        <div className="hidden lg:block lg:col-span-2">
-          <nav className="sticky top-4 space-y-4">
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <h3 className="text-sm font-medium text-gray-900 mb-4">目录</h3>
-              {docs.length === 0 ? (
-                <div className="text-gray-500">暂无文档</div>
-              ) : (
-                <DocsSidebar docs={docs} />
-              )}
+    <div className="min-h-[calc(100vh-4rem)] pt-8">
+      <div className="max-w-[90rem] mx-auto relative">
+        <div className="flex">
+          {/* 左侧边栏 */}
+          <aside className="fixed w-72" style={{ top: 'calc(4rem + 2rem)' }}>
+            {docs.length > 0 && <DocsSidebar docs={docs} />}
+          </aside>
+
+          {/* 主内容区 */}
+          <main className="flex-1 min-w-0 ml-72 mr-64">
+            <div className="max-w-4xl mx-auto px-8">
+              {children}
             </div>
-          </nav>
-        </div>
+          </main>
 
-        {/* Main Content */}
-        <div className="lg:col-span-8">
-          {children}
-        </div>
-
-        {/* Right Sidebar - Table of Contents */}
-        <div className="hidden lg:block lg:col-span-2">
-          <DocsTableOfContents />
+          {/* 右侧目录 */}
+          <aside className="fixed right-[max(0px,calc((100%-90rem)/2))] w-64 hidden xl:block" style={{ top: 'calc(4rem + 2rem)' }}>
+            <DocsTableOfContents />
+          </aside>
         </div>
       </div>
     </div>

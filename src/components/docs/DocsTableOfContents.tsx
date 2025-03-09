@@ -56,14 +56,14 @@ export default function DocsTableOfContents() {
     } else {
       console.log('DocsTableOfContents: 没有找到 h1 元素');
       
-      // 如果没有找到 h1 元素，尝试查找包含“一级目录”文本的元素
+      // 如果没有找到 h1 元素，尝试查找包含"一级目录"文本的元素
       const allElements = document.querySelectorAll('*');
       const elementsWithText = Array.from(allElements).filter(el => 
         el.textContent && el.textContent.includes('一级目录')
       );
       
       if (elementsWithText.length > 0) {
-        console.log('DocsTableOfContents: 找到包含“一级目录”文本的元素', {
+        console.log('DocsTableOfContents: 找到包含"一级目录"文本的元素', {
           count: elementsWithText.length,
           elements: elementsWithText.map(el => ({
             tagName: el.tagName,
@@ -111,12 +111,12 @@ export default function DocsTableOfContents() {
     if (h1WithId.length === 0) {
       console.log('DocsTableOfContents: 没有找到有ID的 h1 元素，尝试手动添加');
       
-      // 尝试找到包含“一级目录”文本的 h1 元素
+      // 尝试找到包含"一级目录"文本的 h1 元素
       const h1Elements = Array.from(document.querySelectorAll('h1'));
       const h1WithText = h1Elements.find(h => h.textContent?.includes('一级目录'));
       
       if (h1WithText) {
-        console.log('DocsTableOfContents: 找到包含“一级目录”文本的 h1 元素，添加ID');
+        console.log('DocsTableOfContents: 找到包含"一级目录"文本的 h1 元素，添加ID');
         h1WithText.id = 'heading-一级目录';
         observer.observe(h1WithText);
         
@@ -153,9 +153,9 @@ export default function DocsTableOfContents() {
   if (headings.length === 0) return null;
 
   return (
-    <nav className="sticky top-4 space-y-4">
-      <div className="bg-white p-4 rounded-lg shadow-sm">
-        <h3 className="text-sm font-medium text-gray-900 mb-4">本页目录</h3>
+    <nav className="h-full">
+      <div className="bg-white rounded-lg border border-gray-200/70 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-4">
+        <h3 className="text-sm font-medium text-gray-900 mb-4 pb-3 border-b border-gray-100">本页目录</h3>
         <ul className="space-y-2">
           {headings.map((heading) => (
             <li
