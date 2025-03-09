@@ -180,11 +180,7 @@ const customStyles = `
     color: #0969da !important;
     text-decoration: none !important;
     transition: color 0.2s ease !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    white-space: nowrap !important;
+    display: inline !important;
   }
   
   /* 标题中的链接不显示蓝色 */
@@ -192,6 +188,16 @@ const customStyles = `
   .markdown-body h1 a, .markdown-body h2 a, .markdown-body h3 a {
     color: inherit !important;
     border-bottom: none !important;
+  }
+  
+  /* 隐藏 h4, h5, h6 的链接图标 */
+  .bytemd-viewer h4 a.heading-anchor, 
+  .bytemd-viewer h5 a.heading-anchor, 
+  .bytemd-viewer h6 a.heading-anchor,
+  .markdown-body h4 a.heading-anchor, 
+  .markdown-body h5 a.heading-anchor, 
+  .markdown-body h6 a.heading-anchor {
+    display: none !important;
   }
   
   .bytemd-viewer a:hover, .markdown-body a:hover {
@@ -269,6 +275,27 @@ const customStyles = `
     text-decoration: none !important;
     display: block !important;
     border-bottom: none !important;
+  }
+  
+  /* 标题锚点图标颜色 - 使用主题色 */
+  .bytemd-viewer h1 a.heading-anchor svg, 
+  .bytemd-viewer h2 a.heading-anchor svg, 
+  .bytemd-viewer h3 a.heading-anchor svg,
+  .markdown-body h1 a.heading-anchor svg, 
+  .markdown-body h2 a.heading-anchor svg, 
+  .markdown-body h3 a.heading-anchor svg {
+    color: #10b981 !important; /* 主题色 emerald-600 */
+    fill: #10b981 !important;
+  }
+  
+  /* 隐藏 h4, h5, h6 的锚点图标 */
+  .bytemd-viewer h4 a.heading-anchor svg, 
+  .bytemd-viewer h5 a.heading-anchor svg, 
+  .bytemd-viewer h6 a.heading-anchor svg,
+  .markdown-body h4 a.heading-anchor svg, 
+  .markdown-body h5 a.heading-anchor svg, 
+  .markdown-body h6 a.heading-anchor svg {
+    display: none !important;
   }
   
   .bytemd-viewer h1 a.heading-anchor:hover, 
@@ -519,14 +546,10 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
           (link as HTMLElement).style.display = 'inline-flex';
           (link as HTMLElement).style.alignItems = 'center';
           
-          // 如果链接内有SVG图标，确保其正确显示
+          // 隐藏链接中的SVG图标
           const svg = link.querySelector('svg');
           if (svg) {
-            // 正确处理SVG元素
-            const svgElement = svg as unknown as SVGElement;
-            svgElement.style.display = 'inline-block';
-            svgElement.style.verticalAlign = 'middle';
-            svgElement.style.marginRight = '0.25rem';
+            svg.style.display = 'none';
           }
         });
 
