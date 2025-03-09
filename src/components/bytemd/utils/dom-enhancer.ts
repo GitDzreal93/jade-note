@@ -45,13 +45,41 @@ const enhanceCodeBlocks = (): void => {
       
       if (!language) {
         // 从类名中提取语言类型
-        const classNames = codeElement.className.split(' ');
+        const classNames = Array.from(codeElement.classList);
         for (const className of classNames) {
           if (className.startsWith('language-')) {
             language = className.replace('language-', '');
             break;
           }
         }
+      }
+      
+      // 如果还没有找到语言标记，尝试从代码内容中提取
+      if (!language) {
+        const codeText = codeElement.textContent || '';
+        const firstLine = codeText.split('\n')[0];
+        if (firstLine && firstLine.startsWith('```')) {
+          const match = firstLine.match(/^```(\S+)/);
+          if (match) {
+            language = match[1];
+          }
+        }
+      }
+      
+      // 处理语言别名
+      const languageAliases: Record<string, string> = {
+        'ts': 'typescript',
+        'js': 'javascript',
+        'py': 'python',
+        'sh': 'shell',
+        'bash': 'shell',
+        'zsh': 'shell',
+        'kt': 'kotlin',
+        'golang': 'go'
+      };
+      
+      if (language && language in languageAliases) {
+        language = languageAliases[language];
       }
       
       // 如果没有找到语言标记，默认为text
@@ -66,18 +94,12 @@ const enhanceCodeBlocks = (): void => {
       (block as HTMLElement).style.position = 'relative';
       
       // 根据语言类型添加特定样式
-      if (['js', 'javascript', 'typescript', 'ts'].includes(language)) {
-        block.classList.add('language-js');
-      } else if (['python', 'py'].includes(language)) {
-        block.classList.add('language-python');
-      } else if (['bash', 'sh', 'shell', 'zsh'].includes(language)) {
-        block.classList.add('language-shell');
-      } else if (['html', 'xml'].includes(language)) {
-        block.classList.add('language-html');
-      } else if (['css', 'scss', 'sass', 'less'].includes(language)) {
-        block.classList.add('language-css');
-      } else {
-        block.classList.add(`language-${language}`);
+      const languageClass = `language-${language}`;
+      if (!block.classList.contains(languageClass)) {
+        block.classList.add(languageClass);
+      }
+      if (!codeElement.classList.contains(languageClass)) {
+        codeElement.classList.add(languageClass);
       }
       
       // 清理代码内容中的语言标记行

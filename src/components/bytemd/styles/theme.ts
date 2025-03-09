@@ -77,43 +77,305 @@ export const customStyles = `
     background-color: rgba(110, 118, 129, 0.4) !important;
   }
   
-  /* 语法高亮颜色 */
-  .bytemd-viewer pre.language-js .token.keyword,
-  .markdown-body pre.language-js .token.keyword {
+  /* 语法高亮颜色 - 通用 */
+  .bytemd-viewer pre .token.keyword,
+  .markdown-body pre .token.keyword {
     color: #cf222e !important;
   }
-  
-  .bytemd-viewer pre.language-js .token.string,
-  .markdown-body pre.language-js .token.string {
+
+  .bytemd-viewer pre .token.string,
+  .markdown-body pre .token.string {
     color: #0a3069 !important;
   }
-  
-  .bytemd-viewer pre.language-js .token.comment,
-  .markdown-body pre.language-js .token.comment {
+
+  .bytemd-viewer pre .token.comment,
+  .markdown-body pre .token.comment {
     color: #6e7781 !important;
     font-style: italic !important;
   }
-  
-  .bytemd-viewer pre.language-js .token.function,
-  .markdown-body pre.language-js .token.function {
+
+  .bytemd-viewer pre .token.function,
+  .markdown-body pre .token.function {
     color: #8250df !important;
   }
-  
+
+  .bytemd-viewer pre .token.number,
+  .markdown-body pre .token.number {
+    color: #0550ae !important;
+  }
+
+  .bytemd-viewer pre .token.operator,
+  .markdown-body pre .token.operator {
+    color: #0550ae !important;
+  }
+
+  .bytemd-viewer pre .token.punctuation,
+  .markdown-body pre .token.punctuation {
+    color: #24292f !important;
+  }
+
+  .bytemd-viewer pre .token.class-name,
+  .markdown-body pre .token.class-name {
+    color: #953800 !important;
+  }
+
+  .bytemd-viewer pre .token.boolean,
+  .markdown-body pre .token.boolean {
+    color: #0550ae !important;
+  }
+
+  .bytemd-viewer pre .token.property,
+  .markdown-body pre .token.property {
+    color: #953800 !important;
+  }
+
+  .bytemd-viewer pre .token.variable,
+  .markdown-body pre .token.variable {
+    color: #953800 !important;
+  }
+
+  /* TypeScript/JavaScript 特定样式 */
+  .bytemd-viewer pre.language-typescript .token.keyword,
+  .bytemd-viewer pre.language-javascript .token.keyword,
+  .markdown-body pre.language-typescript .token.keyword,
+  .markdown-body pre.language-javascript .token.keyword {
+    color: #cf222e !important;
+  }
+
+  /* Python 特定样式 */
+  .bytemd-viewer pre.language-python .token.keyword,
+  .markdown-body pre.language-python .token.keyword {
+    color: #0550ae !important;
+  }
+
+  .bytemd-viewer pre.language-python .token.builtin,
+  .markdown-body pre.language-python .token.builtin {
+    color: #8250df !important;
+  }
+
+  /* HTML 特定样式 */
+  .bytemd-viewer pre.language-html .token.tag,
+  .markdown-body pre.language-html .token.tag {
+    color: #116329 !important;
+  }
+
+  .bytemd-viewer pre.language-html .token.attr-name,
+  .markdown-body pre.language-html .token.attr-name {
+    color: #953800 !important;
+  }
+
+  .bytemd-viewer pre.language-html .token.attr-value,
+  .markdown-body pre.language-html .token.attr-value {
+    color: #0a3069 !important;
+  }
+
+  /* CSS 特定样式 */
+  .bytemd-viewer pre.language-css .token.property,
+  .markdown-body pre.language-css .token.property {
+    color: #0550ae !important;
+  }
+
+  .bytemd-viewer pre.language-css .token.selector,
+  .markdown-body pre.language-css .token.selector {
+    color: #116329 !important;
+  }
+
+  /* Shell/Bash 特定样式 */
+  .bytemd-viewer pre.language-shell .token.function,
+  .markdown-body pre.language-shell .token.function {
+    color: #0550ae !important;
+  }
+
+  .bytemd-viewer pre.language-shell .token.parameter,
+  .markdown-body pre.language-shell .token.parameter {
+    color: #953800 !important;
+  }
+
+  /* Go 特定样式 */
+  .bytemd-viewer pre.language-go .token.keyword,
+  .markdown-body pre.language-go .token.keyword {
+    color: #cf222e !important;
+  }
+
+  .bytemd-viewer pre.language-go .token.function,
+  .markdown-body pre.language-go .token.function {
+    color: #8250df !important;
+  }
+
+  .bytemd-viewer pre.language-go .token.builtin,
+  .markdown-body pre.language-go .token.builtin {
+    color: #0550ae !important;
+  }
+
+  .bytemd-viewer pre.language-go .token.type,
+  .markdown-body pre.language-go .token.type {
+    color: #953800 !important;
+  }
+
+  /* Java 特定样式 */
+  .bytemd-viewer pre.language-java .token.keyword,
+  .markdown-body pre.language-java .token.keyword {
+    color: #cf222e !important;
+  }
+
+  .bytemd-viewer pre.language-java .token.class-name,
+  .markdown-body pre.language-java .token.class-name {
+    color: #953800 !important;
+  }
+
+  .bytemd-viewer pre.language-java .token.annotation,
+  .markdown-body pre.language-java .token.annotation {
+    color: #116329 !important;
+  }
+
+  /* PHP 特定样式 */
+  .bytemd-viewer pre.language-php .token.keyword,
+  .markdown-body pre.language-php .token.keyword {
+    color: #cf222e !important;
+  }
+
+  .bytemd-viewer pre.language-php .token.variable,
+  .markdown-body pre.language-php .token.variable {
+    color: #953800 !important;
+  }
+
+  .bytemd-viewer pre.language-php .token.function,
+  .markdown-body pre.language-php .token.function {
+    color: #8250df !important;
+  }
+
+  .bytemd-viewer pre.language-php .token.namespace,
+  .markdown-body pre.language-php .token.namespace {
+    color: #116329 !important;
+  }
+
+  /* Kotlin 特定样式 */
+  .bytemd-viewer pre.language-kotlin .token.keyword,
+  .markdown-body pre.language-kotlin .token.keyword {
+    color: #cf222e !important;
+  }
+
+  .bytemd-viewer pre.language-kotlin .token.function,
+  .markdown-body pre.language-kotlin .token.function {
+    color: #8250df !important;
+  }
+
+  .bytemd-viewer pre.language-kotlin .token.annotation,
+  .markdown-body pre.language-kotlin .token.annotation {
+    color: #116329 !important;
+  }
+
+  .bytemd-viewer pre.language-kotlin .token.type-parameter,
+  .markdown-body pre.language-kotlin .token.type-parameter {
+    color: #953800 !important;
+  }
+
+  /* Dart 特定样式 */
+  .bytemd-viewer pre.language-dart .token.keyword,
+  .markdown-body pre.language-dart .token.keyword {
+    color: #cf222e !important;
+  }
+
+  .bytemd-viewer pre.language-dart .token.class-name,
+  .markdown-body pre.language-dart .token.class-name {
+    color: #953800 !important;
+  }
+
+  .bytemd-viewer pre.language-dart .token.annotation,
+  .markdown-body pre.language-dart .token.annotation {
+    color: #116329 !important;
+  }
+
+  .bytemd-viewer pre.language-dart .token.metadata,
+  .markdown-body pre.language-dart .token.metadata {
+    color: #0550ae !important;
+  }
+
+  /* Swift 特定样式 */
+  .bytemd-viewer pre.language-swift .token.keyword,
+  .markdown-body pre.language-swift .token.keyword {
+    color: #cf222e !important;
+  }
+
+  .bytemd-viewer pre.language-swift .token.function,
+  .markdown-body pre.language-swift .token.function {
+    color: #8250df !important;
+  }
+
+  .bytemd-viewer pre.language-swift .token.type,
+  .markdown-body pre.language-swift .token.type {
+    color: #953800 !important;
+  }
+
+  .bytemd-viewer pre.language-swift .token.property,
+  .markdown-body pre.language-swift .token.property {
+    color: #0550ae !important;
+  }
+
+  /* Groovy 特定样式 */
+  .bytemd-viewer pre.language-groovy .token.keyword,
+  .markdown-body pre.language-groovy .token.keyword {
+    color: #cf222e !important;
+  }
+
+  .bytemd-viewer pre.language-groovy .token.function,
+  .markdown-body pre.language-groovy .token.function {
+    color: #8250df !important;
+  }
+
+  .bytemd-viewer pre.language-groovy .token.annotation,
+  .markdown-body pre.language-groovy .token.annotation {
+    color: #116329 !important;
+  }
+
+  .bytemd-viewer pre.language-groovy .token.string-interpolation,
+  .markdown-body pre.language-groovy .token.string-interpolation {
+    color: #0550ae !important;
+  }
+
   /* 暗色模式语法高亮 */
-  .markdown-body-dark pre.language-js .token.keyword {
+  .markdown-body-dark pre .token.keyword {
     color: #ff7b72 !important;
   }
-  
-  .markdown-body-dark pre.language-js .token.string {
+
+  .markdown-body-dark pre .token.string {
     color: #a5d6ff !important;
   }
-  
-  .markdown-body-dark pre.language-js .token.comment {
+
+  .markdown-body-dark pre .token.comment {
     color: #8b949e !important;
   }
-  
-  .markdown-body-dark pre.language-js .token.function {
+
+  .markdown-body-dark pre .token.function {
     color: #d2a8ff !important;
+  }
+
+  .markdown-body-dark pre .token.number {
+    color: #79c0ff !important;
+  }
+
+  .markdown-body-dark pre .token.operator {
+    color: #79c0ff !important;
+  }
+
+  .markdown-body-dark pre .token.punctuation {
+    color: #c9d1d9 !important;
+  }
+
+  .markdown-body-dark pre .token.class-name {
+    color: #ffa657 !important;
+  }
+
+  .markdown-body-dark pre .token.boolean {
+    color: #79c0ff !important;
+  }
+
+  .markdown-body-dark pre .token.property {
+    color: #ffa657 !important;
+  }
+
+  .markdown-body-dark pre .token.variable {
+    color: #ffa657 !important;
   }
 
   /* 列表样式 */

@@ -65,8 +65,8 @@ function processCodeBlocks(content: string): string {
         inCodeBlock = true;
         codeBlockLanguage = codeBlockMatch[1] || 'text';
         codeBlockStartLine = i;
-        // 添加代码块开始标记，但不包含语言标记（将在渲染时添加）
-        result.push('```');
+        // 添加代码块开始标记，包含语言标记
+        result.push(`\`\`\`${codeBlockLanguage}`);
       } else {
         // 结束当前代码块
         inCodeBlock = false;
