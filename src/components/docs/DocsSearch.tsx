@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { DocNode } from '@/lib/docs';
 import { Search } from 'lucide-react';
+import { SearchPopover } from './SearchPopover';
+import { createPortal } from 'react-dom';
 
 interface DocsSearchProps {
   docs: DocNode[];
@@ -20,7 +22,13 @@ export function DocsSearch({ docs }: DocsSearchProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
-  const searchRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // 在客户端挂载后设置mounted为true
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   // 扁平化文档树，包括子文档
   const flattenDocs = (docs: DocNode[]): SearchResult[] => {
@@ -73,17 +81,18 @@ export function DocsSearch({ docs }: DocsSearchProps) {
     setQuery('');
   };
 
-  // 处理点击外部关闭
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
+  // 处理打开搜索框
+  const handleOpenSearch = () => {
+    setIsOpen(true);
+    // 重置搜索状态
+    setQuery('');
+    setResults([]);
+  };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  // 处理关闭搜索框
+  const handleCloseSearch = () => {
+    setIsOpen(false);
+  };
 
   // 处理快捷键
   useEffect(() => {
@@ -91,11 +100,7 @@ export function DocsSearch({ docs }: DocsSearchProps) {
       // 按 K 键打开搜索框
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setIsOpen(true);
-      }
-      // 按 Esc 键关闭搜索框
-      if (e.key === 'Escape') {
-        setIsOpen(false);
+        handleOpenSearch();
       }
     };
 
@@ -104,64 +109,35 @@ export function DocsSearch({ docs }: DocsSearchProps) {
   }, []);
 
   return (
-    <div ref={searchRef} className="relative w-full">
+    <div className="relative w-full">
       {/* 搜索触发器 */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 bg-white border rounded-lg hover:border-gray-300 focus:outline-none"
-      >
-        <Search className="w-4 h-4" />
-        <span className="flex-1 text-left">搜索文档...</span>
-        <kbd className="hidden sm:inline-block px-2 py-0.5 text-xs text-gray-500 bg-gray-100 rounded">
+      <div className="relative">
+        <input
+          type="text"
+          readOnly
+          onClick={handleOpenSearch}
+          placeholder="搜索文档..."
+          className="w-full pl-8 pr-3 py-2 text-sm text-gray-500 bg-white border border-gray-200 rounded-md cursor-pointer hover:border-gray-300 focus:outline-none"
+        />
+        <Search className="absolute left-2.5 top-2.5 w-4 h-4 text-gray-400" />
+        <kbd className="absolute right-2.5 top-2.5 px-1.5 py-0.5 text-xs text-gray-400 bg-gray-100 rounded">
           ⌘K
         </kbd>
-      </button>
+      </div>
 
-      {/* 搜索弹出框 */}
-      {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50">
-          <div className="p-2">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                searchDocs(e.target.value);
-              }}
-              placeholder="输入关键词搜索..."
-              className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:border-emerald-500"
-              autoFocus
-            />
-          </div>
-
-          {results.length > 0 && (
-            <ul className="max-h-64 overflow-y-auto border-t border-gray-100">
-              {results.map((result, index) => (
-                <li key={result.slug + index}>
-                  <button
-                    onClick={() => handleSelect(result)}
-                    className="w-full px-4 py-2 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
-                  >
-                    <div className="text-sm font-medium text-gray-900">
-                      {result.title}
-                    </div>
-                    {result.parentTitle && (
-                      <div className="text-xs text-gray-500">
-                        {result.parentTitle}
-                      </div>
-                    )}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {query && results.length === 0 && (
-            <div className="px-4 py-8 text-center text-sm text-gray-500">
-              未找到相关文档
-            </div>
-          )}
-        </div>
+      {/* 搜索弹出框 - 使用Portal确保正确渲染 */}
+      {mounted && isOpen && createPortal(
+        <SearchPopover
+          query={query}
+          onQueryChange={(value) => {
+            setQuery(value);
+            searchDocs(value);
+          }}
+          results={results}
+          onSelect={handleSelect}
+          onClose={handleCloseSearch}
+        />,
+        document.body
       )}
     </div>
   );
