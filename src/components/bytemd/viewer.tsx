@@ -142,11 +142,11 @@ const customStyles = `
     display: list-item !important;
     margin: 0.5em 0 !important;
     position: relative !important;
+    list-style-position: outside !important;
   }
   
   /* 定制列表标记 */
   .bytemd-viewer ul li::marker, .markdown-body ul li::marker {
-    content: '\\2022' !important;
     color: currentColor !important;
     display: inline-block !important;
   }
@@ -154,33 +154,6 @@ const customStyles = `
   .bytemd-viewer ol li::marker, .markdown-body ol li::marker {
     color: currentColor !important;
     display: inline-block !important;
-  }
-  
-  /* 兼容性处理，使用伪元素添加标记 */
-  .bytemd-viewer ul.md-list-disc li, .markdown-body ul.md-list-disc li {
-    position: relative !important;
-    padding-left: 0.5em !important;
-  }
-  
-  .bytemd-viewer ul.md-list-disc li::before, .markdown-body ul.md-list-disc li::before {
-    content: '\\2022' !important;
-    position: absolute !important;
-    left: -1em !important;
-    color: currentColor !important;
-    font-size: 1.2em !important;
-  }
-  
-  .bytemd-viewer ol.md-list-decimal li, .markdown-body ol.md-list-decimal li {
-    position: relative !important;
-    padding-left: 0.5em !important;
-    counter-increment: list-counter !important;
-  }
-  
-  .bytemd-viewer ol.md-list-decimal li::before, .markdown-body ol.md-list-decimal li::before {
-    content: counter(list-counter) '.' !important;
-    position: absolute !important;
-    left: -1.5em !important;
-    color: currentColor !important;
   }
   
   /* 嵌套列表样式 */
@@ -194,9 +167,12 @@ const customStyles = `
     list-style-type: square !important;
   }
   
-  /* 确保列表项标记可见 */
-  .bytemd-viewer li, .markdown-body li {
-    list-style-position: outside !important;
+  /* 移除自定义类的列表样式，防止重复显示 */
+  .bytemd-viewer ul.md-list-disc li::before, 
+  .markdown-body ul.md-list-disc li::before,
+  .bytemd-viewer ol.md-list-decimal li::before, 
+  .markdown-body ol.md-list-decimal li::before {
+    content: none !important;
   }
 `;
 
@@ -316,12 +292,14 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
         // 确保列表项正确显示
         const lists = document.querySelectorAll('.bytemd-viewer ul, .bytemd-viewer ol');
         console.log(`BytemdViewer: 找到 ${lists.length} 个列表`);
+        // 不再添加自定义类，避免重复显示列表标记
         lists.forEach(list => {
-          if (list.tagName === 'UL') {
-            list.classList.add('md-list-disc');
-          } else if (list.tagName === 'OL') {
-            list.classList.add('md-list-decimal');
-          }
+          // 检查列表是否有正确的列表样式
+          const listItems = list.querySelectorAll('li');
+          listItems.forEach(item => {
+            // 确保列表项有正确的显示样式
+            (item as HTMLElement).style.display = 'list-item';
+          });
         });
 
         // 修复代码块后内容被当作代码块的问题
