@@ -5,6 +5,8 @@ interface SearchResult {
   title: string;
   slug: string;
   parentTitle?: string;
+  preview?: string;
+  isParent?: boolean;
 }
 
 interface SearchPopoverProps {
@@ -13,6 +15,7 @@ interface SearchPopoverProps {
   results: SearchResult[];
   onSelect: (result: SearchResult) => void;
   onClose: () => void;
+  isLoading: boolean;
 }
 
 export function SearchPopover({
@@ -21,6 +24,7 @@ export function SearchPopover({
   results,
   onSelect,
   onClose,
+  isLoading,
 }: SearchPopoverProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -52,7 +56,7 @@ export function SearchPopover({
     >
       <div className="flex min-h-full items-center justify-center p-4">
         <div 
-          className="relative w-full max-w-md transform overflow-hidden rounded-lg bg-white shadow-xl transition-all"
+          className="relative w-full max-w-2xl transform overflow-hidden rounded-lg bg-white shadow-xl transition-all"
           onClick={(e) => e.stopPropagation()}
         >
           {/* 搜索输入框 */}
@@ -72,21 +76,38 @@ export function SearchPopover({
 
           {/* 搜索结果 */}
           <div className="max-h-[60vh] overflow-y-auto">
-            {results.length > 0 ? (
-              <ul>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+              </div>
+            ) : results.length > 0 ? (
+              <ul className="divide-y divide-gray-100">
                 {results.map((result, index) => (
                   <li key={result.slug + index}>
                     <button
                       onClick={() => onSelect(result)}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
                     >
-                      <div className="flex flex-col">
-                        <div className="text-sm font-medium text-gray-900">
-                          {result.title}
+                      <div className="flex flex-col space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm font-medium text-gray-900">
+                            {result.title}
+                          </span>
+                          {result.isParent ? (
+                            <span className="px-2 py-0.5 text-xs font-medium text-emerald-700 bg-emerald-50 rounded">
+                              主文档
+                            </span>
+                          ) : null}
                         </div>
                         {result.parentTitle && (
-                          <div className="text-xs text-gray-500 mt-0.5">
+                          <div className="text-xs text-gray-500">
                             {result.parentTitle}
+                          </div>
+                        )}
+                        {result.preview && (
+                          <div className="text-sm text-gray-600 line-clamp-2">
+                            <span className="text-emerald-600 font-medium">找到：</span>
+                            {result.preview}
                           </div>
                         )}
                       </div>

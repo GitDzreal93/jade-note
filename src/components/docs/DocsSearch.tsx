@@ -15,6 +15,8 @@ interface SearchResult {
   title: string;
   slug: string;
   parentTitle?: string;
+  preview?: string;
+  isParent?: boolean;
 }
 
 export function DocsSearch({ docs }: DocsSearchProps) {
@@ -23,6 +25,7 @@ export function DocsSearch({ docs }: DocsSearchProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // 在客户端挂载后设置mounted为true
   useEffect(() => {
@@ -30,48 +33,47 @@ export function DocsSearch({ docs }: DocsSearchProps) {
     return () => setMounted(false);
   }, []);
 
-  // 扁平化文档树，包括子文档
-  const flattenDocs = (docs: DocNode[]): SearchResult[] => {
-    return docs.reduce<SearchResult[]>((acc, doc) => {
-      // 添加当前文档
-      acc.push({
-        title: doc.title,
-        slug: doc.slug,
-      });
-
-      // 添加子文档，并包含父文档标题
-      if (doc.children?.length) {
-        doc.children.forEach(child => {
-          acc.push({
-            title: child.title,
-            slug: child.slug,
-            parentTitle: doc.title,
-          });
-        });
-      }
-
-      return acc;
-    }, []);
-  };
-
   // 搜索文档
-  const searchDocs = (searchQuery: string) => {
+  const searchDocs = async (searchQuery: string) => {
     if (!searchQuery.trim()) {
       setResults([]);
       return;
     }
 
-    const allDocs = flattenDocs(docs);
-    const searchResults = allDocs.filter(doc => {
-      const normalizedQuery = searchQuery.toLowerCase();
-      return (
-        doc.title.toLowerCase().includes(normalizedQuery) ||
-        doc.parentTitle?.toLowerCase().includes(normalizedQuery)
-      );
-    });
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/docs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: searchQuery }),
+      });
 
-    setResults(searchResults);
+      if (!response.ok) {
+        throw new Error('搜索请求失败');
+      }
+
+      const searchResults = await response.json();
+      setResults(searchResults);
+    } catch (error) {
+      console.error('搜索出错:', error);
+      setResults([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  // 使用防抖进行搜索
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (query) {
+        searchDocs(query);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query]);
 
   // 处理文档选择
   const handleSelect = (result: SearchResult) => {
@@ -131,11 +133,11 @@ export function DocsSearch({ docs }: DocsSearchProps) {
           query={query}
           onQueryChange={(value) => {
             setQuery(value);
-            searchDocs(value);
           }}
           results={results}
           onSelect={handleSelect}
           onClose={handleCloseSearch}
+          isLoading={isLoading}
         />,
         document.body
       )}
