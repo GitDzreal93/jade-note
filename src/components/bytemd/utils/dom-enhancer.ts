@@ -70,6 +70,9 @@ const enhanceCodeBlocks = (): void => {
       const languageAliases: Record<string, string> = {
         'ts': 'typescript',
         'js': 'javascript',
+        'jsx': 'jsx',
+        'tsx': 'tsx',
+        'vue': 'vue',
         'py': 'python',
         'sh': 'shell',
         'bash': 'shell',

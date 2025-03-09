@@ -137,8 +137,12 @@ export const customStyles = `
   /* TypeScript/JavaScript 特定样式 */
   .bytemd-viewer pre.language-typescript .token.keyword,
   .bytemd-viewer pre.language-javascript .token.keyword,
+  .bytemd-viewer pre.language-jsx .token.keyword,
+  .bytemd-viewer pre.language-tsx .token.keyword,
   .markdown-body pre.language-typescript .token.keyword,
-  .markdown-body pre.language-javascript .token.keyword {
+  .markdown-body pre.language-javascript .token.keyword,
+  .markdown-body pre.language-jsx .token.keyword,
+  .markdown-body pre.language-tsx .token.keyword {
     color: #cf222e !important;
   }
 
@@ -612,5 +616,104 @@ export const customStyles = `
   
   .markdown-body-dark a:hover {
     color: #79b8ff !important;
+  }
+
+  /* JSX/TSX 特定样式 */
+  .bytemd-viewer pre.language-jsx .token.tag,
+  .bytemd-viewer pre.language-tsx .token.tag,
+  .markdown-body pre.language-jsx .token.tag,
+  .markdown-body pre.language-tsx .token.tag {
+    color: #116329 !important;
+  }
+
+  .bytemd-viewer pre.language-jsx .token.attr-name,
+  .bytemd-viewer pre.language-tsx .token.attr-name,
+  .markdown-body pre.language-jsx .token.attr-name,
+  .markdown-body pre.language-tsx .token.attr-name {
+    color: #953800 !important;
+  }
+
+  .bytemd-viewer pre.language-jsx .token.attr-value,
+  .bytemd-viewer pre.language-tsx .token.attr-value,
+  .markdown-body pre.language-jsx .token.attr-value,
+  .markdown-body pre.language-tsx .token.attr-value {
+    color: #0a3069 !important;
+  }
+
+  .bytemd-viewer pre.language-jsx .token.component,
+  .bytemd-viewer pre.language-tsx .token.component,
+  .markdown-body pre.language-jsx .token.component,
+  .markdown-body pre.language-tsx .token.component {
+    color: #8250df !important;
+  }
+
+  /* Vue 特定样式 */
+  .bytemd-viewer pre.language-vue .token.tag,
+  .markdown-body pre.language-vue .token.tag {
+    color: #116329 !important;
+  }
+
+  .bytemd-viewer pre.language-vue .token.attr-name,
+  .markdown-body pre.language-vue .token.attr-name {
+    color: #953800 !important;
+  }
+
+  .bytemd-viewer pre.language-vue .token.attr-value,
+  .markdown-body pre.language-vue .token.attr-value {
+    color: #0a3069 !important;
+  }
+
+  .bytemd-viewer pre.language-vue .token.directive,
+  .markdown-body pre.language-vue .token.directive {
+    color: #cf222e !important;
+  }
+
+  .bytemd-viewer pre.language-vue .token.script-tag,
+  .markdown-body pre.language-vue .token.script-tag {
+    color: #8250df !important;
+  }
+
+  .bytemd-viewer pre.language-vue .token.style-tag,
+  .markdown-body pre.language-vue .token.style-tag {
+    color: #0550ae !important;
+  }
+
+  .bytemd-viewer pre.language-vue .token.template-tag,
+  .markdown-body pre.language-vue .token.template-tag {
+    color: #116329 !important;
+  }
+
+  /* 暗色模式下的 JSX/TSX/Vue 样式 */
+  .markdown-body-dark pre.language-jsx .token.tag,
+  .markdown-body-dark pre.language-tsx .token.tag,
+  .markdown-body-dark pre.language-vue .token.tag {
+    color: #7ee787 !important;
+  }
+
+  .markdown-body-dark pre.language-jsx .token.attr-name,
+  .markdown-body-dark pre.language-tsx .token.attr-name,
+  .markdown-body-dark pre.language-vue .token.attr-name {
+    color: #ffa657 !important;
+  }
+
+  .markdown-body-dark pre.language-jsx .token.attr-value,
+  .markdown-body-dark pre.language-tsx .token.attr-value,
+  .markdown-body-dark pre.language-vue .token.attr-value {
+    color: #a5d6ff !important;
+  }
+
+  .markdown-body-dark pre.language-jsx .token.component,
+  .markdown-body-dark pre.language-tsx .token.component {
+    color: #d2a8ff !important;
+  }
+
+  .markdown-body-dark pre.language-vue .token.directive {
+    color: #ff7b72 !important;
+  }
+
+  .markdown-body-dark pre.language-vue .token.script-tag,
+  .markdown-body-dark pre.language-vue .token.style-tag,
+  .markdown-body-dark pre.language-vue .token.template-tag {
+    color: #d2a8ff !important;
   }
 `; 
