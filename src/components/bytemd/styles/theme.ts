@@ -25,26 +25,36 @@ export const customStyles = `
     display: block !important;
   }
   
-  /* 代码块语言标记 */
-  .bytemd-viewer pre::before, .markdown-body pre::before {
+  /* 代码块语言标记 - 修改选择器和样式 */
+  .bytemd-viewer pre[data-lang]::before,
+  .markdown-body pre[data-lang]::before {
     content: attr(data-lang);
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 4px 8px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #6e7781;
-    background: #f0f1f2;
-    border-bottom-left-radius: 4px;
-    border-top-right-radius: 8px;
-    pointer-events: none;
-    z-index: 10;
+    position: absolute !important;
+    top: 0.5rem !important;
+    right: 0.5rem !important;
+    padding: 0.1rem 0.5rem !important;
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+    font-weight: 500 !important;
+    color: #6e7781 !important;
+    background: #f0f1f2 !important;
+    border-radius: 0.25rem !important;
+    opacity: 0.8 !important;
+    pointer-events: none !important;
+    z-index: 10 !important;
+    text-transform: lowercase !important;
+    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace !important;
+    letter-spacing: 0.025em !important;
+    user-select: none !important;
   }
-  
-  /* 隐藏代码块内部的语言标记 */
-  .bytemd-viewer pre code > .token:first-child,
-  .markdown-body pre code > .token:first-child {
+
+  /* 隐藏空的语言标记 */
+  .bytemd-viewer pre[data-lang=""]::before,
+  .markdown-body pre[data-lang=""]::before,
+  .bytemd-viewer pre[data-lang="text"]::before,
+  .markdown-body pre[data-lang="text"]::before,
+  .bytemd-viewer pre:not([data-lang])::before,
+  .markdown-body pre:not([data-lang])::before {
     display: none !important;
   }
   
@@ -59,9 +69,11 @@ export const customStyles = `
     color: #e6e6e6 !important;
   }
   
-  .markdown-body-dark pre::before {
-    background: #2d2d2d;
-    color: #a0a0a0;
+  /* 暗色模式语言标记 */
+  .markdown-body-dark pre[data-lang]::before {
+    background: #2d2d2d !important;
+    color: #8b949e !important;
+    border: 1px solid #404040 !important;
   }
   
   /* 行内代码 */

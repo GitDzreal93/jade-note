@@ -5,11 +5,13 @@ import { Viewer } from '@bytemd/react';
 import { useTheme } from 'next-themes';
 import { plugins, sanitize } from "../config";
 
-// 导入主题样式
+// 基础样式
 import 'bytemd/dist/index.css';
-import 'highlight.js/styles/github.css';
+// 数学公式样式
 import 'katex/dist/katex.css';
-import 'juejin-markdown-themes/dist/juejin.min.css';
+// 代码高亮样式
+import 'highlight.js/styles/github.css';
+// 主题样式 - 只保留一个主题，避免冲突
 import 'juejin-markdown-themes/dist/github.min.css';
 
 // 导入自定义工具和样式
@@ -17,6 +19,21 @@ import { customStyles } from '../styles/theme';
 import { preprocessMarkdown } from '../utils/content-formatter';
 import { enhanceMarkdownRendering } from '../utils/dom-enhancer';
 import { analyzeHeadingStructure, optimizeHeadingDisplay } from '../utils/heading-manager';
+
+// 语言显示名称映射
+const LANGUAGE_DISPLAY_NAMES: Record<string, string> = {
+  typescript: 'ts',
+  javascript: 'js',
+  jsx: 'jsx',
+  tsx: 'tsx',
+  python: 'py',
+  markdown: 'md',
+  plaintext: 'text',
+  text: 'text',
+  shell: 'sh',
+  bash: 'sh',
+  mdx: 'mdx',
+};
 
 interface BytemdViewerProps {
   body: string;
@@ -39,19 +56,91 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
       const processed = preprocessMarkdown(body);
       setProcessedContent(processed);
       setRenderError(null);
+
+      // 调试日志：检查代码块
+      const codeBlocks = processed.match(/```(\w+)?\n[\s\S]+?```/g);
+      if (codeBlocks) {
+        codeBlocks.forEach((block, index) => {
+          const lang = block.match(/```(\w+)?/)?.[1] || 'text';
+          console.log(`Debug: Markdown代码块 ${index + 1}`, {
+            language: lang,
+            displayName: LANGUAGE_DISPLAY_NAMES[lang] || lang,
+            content: block.slice(3 + lang.length, -3).trim()
+          });
+        });
+      }
     } catch (error) {
       console.error('BytemdViewer: 内容预处理错误', error);
       setRenderError(error instanceof Error ? error.message : String(error));
-      // 如果预处理失败，使用原始内容
       setProcessedContent(body);
     }
   }, [body]);
 
   // 增强DOM渲染效果
   useEffect(() => {
-    // 使用 setTimeout 确保在 DOM 渲染完成后执行
-    const timer = setTimeout(enhanceMarkdownRendering, 200);
-    return () => clearTimeout(timer);
+    const enhanceCodeBlocks = () => {
+      const codeBlocks = document.querySelectorAll('pre code');
+      console.log('Debug: 找到的代码块数量:', codeBlocks.length);
+
+      codeBlocks.forEach((block, index) => {
+        const parent = block.parentElement;
+        if (!parent) {
+          console.warn(`Debug: 代码块 ${index + 1} 没有父元素`);
+          return;
+        }
+
+        // 获取完整的类名
+        const fullClassName = block.className;
+        console.log(`Debug: 代码块 ${index + 1} 原始类名:`, fullClassName);
+
+        // 提取语言标识
+        const langMatch = fullClassName.match(/language-(\w+)/);
+        const lang = langMatch ? langMatch[1] : '';
+        console.log(`Debug: 代码块 ${index + 1} 提取的语言:`, lang);
+
+        // 获取简化的显示名称
+        const displayName = LANGUAGE_DISPLAY_NAMES[lang] || lang;
+        console.log(`Debug: 代码块 ${index + 1} 显示名称:`, displayName);
+
+        // 移除旧的语言标记
+        const oldLang = parent.getAttribute('data-lang');
+        if (oldLang) {
+          console.log(`Debug: 代码块 ${index + 1} 移除旧语言标记:`, oldLang);
+        }
+
+        // 设置新的语言标记
+        if (displayName && displayName !== 'text') {
+          parent.setAttribute('data-lang', displayName);
+          console.log(`Debug: 代码块 ${index + 1} 设置新语言标记:`, displayName);
+        }
+
+        // 确保代码块有正确的类名
+        if (!block.className.includes('hljs')) {
+          const newClassName = `hljs ${block.className}`;
+          block.className = newClassName;
+          console.log(`Debug: 代码块 ${index + 1} 更新后的类名:`, newClassName);
+        }
+
+        // 检查最终状态
+        console.log(`Debug: 代码块 ${index + 1} 最终状态:`, {
+          parentElement: parent.tagName,
+          dataLang: parent.getAttribute('data-lang'),
+          finalClassName: block.className,
+          content: block.textContent?.slice(0, 50) + '...'
+        });
+      });
+    };
+
+    // 使用多个时间点来确保代码块被正确处理
+    const timers = [100, 300, 500, 1000].map(delay => 
+      setTimeout(() => {
+        console.log(`Debug: 执行增强处理 (${delay}ms)`);
+        enhanceMarkdownRendering();
+        enhanceCodeBlocks();
+      }, delay)
+    );
+    
+    return () => timers.forEach(clearTimeout);
   }, [processedContent]);
 
   // 优化标题显示
@@ -104,7 +193,7 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
       <Viewer 
         value={processedContent} 
         plugins={plugins} 
-        sanitize={sanitize} 
+        sanitize={sanitize}
       />
     </div>
   );
