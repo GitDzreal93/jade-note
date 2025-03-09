@@ -15,7 +15,7 @@ export async function DocsLayout({ children }: DocsLayoutProps) {
   return (
     <div className="min-h-[calc(100vh-4rem)] pt-8">
       <div className="max-w-[90rem] mx-auto relative">
-        <div className="flex">
+        <div className="flex pb-8">
           {/* 左侧边栏 */}
           <aside className="fixed w-72" style={{ top: 'calc(4rem + 2rem)' }}>
             {docs.length > 0 && <DocsSidebar docs={docs} />}
@@ -24,7 +24,9 @@ export async function DocsLayout({ children }: DocsLayoutProps) {
           {/* 主内容区 */}
           <main className="flex-1 min-w-0 ml-72 mr-64">
             <div className="max-w-4xl mx-auto px-8">
-              {children}
+              <div className="pb-8">
+                {children}
+              </div>
             </div>
           </main>
 
