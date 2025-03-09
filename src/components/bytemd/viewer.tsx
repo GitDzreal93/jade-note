@@ -12,8 +12,118 @@ import 'katex/dist/katex.css';
 import 'juejin-markdown-themes/dist/juejin.min.css';
 import 'juejin-markdown-themes/dist/github.min.css';
 
-// 自定义列表样式
-const listStyles = `
+// 自定义样式
+const customStyles = `
+  /* 代码块样式 */
+  .bytemd-viewer pre, .markdown-body pre {
+    background-color: #f8f9fa !important;
+    border-radius: 8px !important;
+    padding: 16px !important;
+    margin: 1em 0 !important;
+    overflow: auto !important;
+    position: relative !important;
+    border: 1px solid #e9ecef !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  .bytemd-viewer pre code, .markdown-body pre code {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    color: #24292e !important;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    white-space: pre !important;
+    tab-size: 2 !important;
+    display: block !important;
+  }
+  
+  /* 代码块语言标记 */
+  .bytemd-viewer pre::before, .markdown-body pre::before {
+    content: attr(data-lang);
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6e7781;
+    background: #f0f1f2;
+    border-bottom-left-radius: 4px;
+    border-top-right-radius: 8px;
+    pointer-events: none;
+  }
+  
+  /* 暗色模式代码块 */
+  .markdown-body-dark pre {
+    background-color: #1e1e1e !important;
+    border-color: #2d2d2d !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  .markdown-body-dark pre code {
+    color: #e6e6e6 !important;
+  }
+  
+  .markdown-body-dark pre::before {
+    background: #2d2d2d;
+    color: #a0a0a0;
+  }
+  
+  /* 行内代码 */
+  .bytemd-viewer code:not(pre code), .markdown-body code:not(pre code) {
+    background-color: rgba(175, 184, 193, 0.2) !important;
+    border-radius: 4px !important;
+    padding: 0.2em 0.4em !important;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace !important;
+    font-size: 85% !important;
+  }
+  
+  .markdown-body-dark code:not(pre code) {
+    background-color: rgba(110, 118, 129, 0.4) !important;
+  }
+  
+  /* 语法高亮颜色 */
+  .bytemd-viewer pre.language-js .token.keyword,
+  .markdown-body pre.language-js .token.keyword {
+    color: #cf222e !important;
+  }
+  
+  .bytemd-viewer pre.language-js .token.string,
+  .markdown-body pre.language-js .token.string {
+    color: #0a3069 !important;
+  }
+  
+  .bytemd-viewer pre.language-js .token.comment,
+  .markdown-body pre.language-js .token.comment {
+    color: #6e7781 !important;
+    font-style: italic !important;
+  }
+  
+  .bytemd-viewer pre.language-js .token.function,
+  .markdown-body pre.language-js .token.function {
+    color: #8250df !important;
+  }
+  
+  /* 暗色模式语法高亮 */
+  .markdown-body-dark pre.language-js .token.keyword {
+    color: #ff7b72 !important;
+  }
+  
+  .markdown-body-dark pre.language-js .token.string {
+    color: #a5d6ff !important;
+  }
+  
+  .markdown-body-dark pre.language-js .token.comment {
+    color: #8b949e !important;
+  }
+  
+  .markdown-body-dark pre.language-js .token.function {
+    color: #d2a8ff !important;
+  }
+
+  /* 列表样式 */
   /* 基本列表样式 */
   .bytemd-viewer ul, .markdown-body ul {
     list-style-type: disc !important;
@@ -159,11 +269,48 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
       try {
         console.log('BytemdViewer: 开始修复渲染问题');
         
-        // 修复代码块选择区域
+        // 修复代码块样式和添加语言标记
         const codeBlocks = document.querySelectorAll('.bytemd-viewer pre');
         console.log(`BytemdViewer: 找到 ${codeBlocks.length} 个代码块`);
         codeBlocks.forEach(block => {
+          // 添加样式类
           block.classList.add('code-block-wrapper');
+          
+          // 获取语言类型
+          const codeElement = block.querySelector('code');
+          if (codeElement) {
+            const classNames = codeElement.className.split(' ');
+            let language = 'text';
+            
+            // 从类名中提取语言类型
+            for (const className of classNames) {
+              if (className.startsWith('language-')) {
+                language = className.replace('language-', '');
+                break;
+              }
+            }
+            
+            // 设置语言标记
+            block.setAttribute('data-lang', language);
+            
+            // 添加颜色和样式
+            (block as HTMLElement).style.position = 'relative';
+            
+            // 如果是特定语言，添加颜色样式
+            if (['js', 'javascript', 'typescript', 'ts'].includes(language)) {
+              block.classList.add('language-js');
+            } else if (['python', 'py'].includes(language)) {
+              block.classList.add('language-python');
+            } else if (['bash', 'sh', 'shell', 'zsh'].includes(language)) {
+              block.classList.add('language-shell');
+            } else if (['html', 'xml'].includes(language)) {
+              block.classList.add('language-html');
+            } else if (['css', 'scss', 'sass', 'less'].includes(language)) {
+              block.classList.add('language-css');
+            } else {
+              block.classList.add(`language-${language}`);
+            }
+          }
         });
 
         // 确保列表项正确显示
@@ -252,7 +399,7 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
   return (
     <div className={`bytemd-viewer ${themeClass}`}>
       {/* 添加自定义样式 */}
-      <style dangerouslySetInnerHTML={{ __html: listStyles }} />
+      <style dangerouslySetInnerHTML={{ __html: customStyles }} />
       <Viewer 
         value={processedContent} 
         plugins={plugins} 
