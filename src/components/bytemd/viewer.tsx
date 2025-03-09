@@ -200,6 +200,73 @@ const customStyles = `
     flex-shrink: 0 !important;
   }
   
+  /* 标题样式 */
+  .bytemd-viewer h1, .markdown-body h1,
+  .bytemd-viewer > div > h1, .markdown-body > div > h1 {
+    font-size: 2em !important;
+    font-weight: bold !important;
+    margin-top: 1.5em !important;
+    margin-bottom: 0.8em !important;
+    border-bottom: 1px solid #eaecef !important;
+    padding-bottom: 0.3em !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #24292e !important;
+  }
+  
+  /* 特别处理一级目录 */
+  .bytemd-viewer h1:first-of-type, .markdown-body h1:first-of-type,
+  .bytemd-viewer > div > h1:first-of-type, .markdown-body > div > h1:first-of-type {
+    font-size: 2.5em !important;
+    color: #000 !important;
+    margin-top: 0.5em !important;
+  }
+  
+  /* 确保 HTML 标签也能正确渲染 */
+  .bytemd-viewer > div > h1, .markdown-body > div > h1 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .bytemd-viewer h2, .markdown-body h2 {
+    font-size: 1.5em !important;
+    font-weight: bold !important;
+    margin-top: 1.5em !important;
+    margin-bottom: 0.8em !important;
+    border-bottom: 1px solid #eaecef !important;
+    padding-bottom: 0.3em !important;
+  }
+  
+  .bytemd-viewer h3, .markdown-body h3 {
+    font-size: 1.25em !important;
+    font-weight: bold !important;
+    margin-top: 1.5em !important;
+    margin-bottom: 0.8em !important;
+  }
+  
+  /* 标题锚点样式 */
+  .bytemd-viewer h1 a.heading-anchor, 
+  .bytemd-viewer h2 a.heading-anchor, 
+  .bytemd-viewer h3 a.heading-anchor,
+  .markdown-body h1 a.heading-anchor, 
+  .markdown-body h2 a.heading-anchor, 
+  .markdown-body h3 a.heading-anchor {
+    color: inherit !important;
+    text-decoration: none !important;
+    display: block !important;
+  }
+  
+  .bytemd-viewer h1 a.heading-anchor:hover, 
+  .bytemd-viewer h2 a.heading-anchor:hover, 
+  .bytemd-viewer h3 a.heading-anchor:hover,
+  .markdown-body h1 a.heading-anchor:hover, 
+  .markdown-body h2 a.heading-anchor:hover, 
+  .markdown-body h3 a.heading-anchor:hover {
+    text-decoration: none !important;
+  }
+  
   /* 修复链接内容换行问题 */
   .bytemd-viewer a *, .markdown-body a * {
     display: inline-block !important;
@@ -212,6 +279,23 @@ const customStyles = `
     flex-wrap: nowrap !important;
     white-space: nowrap !important;
     width: auto !important;
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+  
+  /* 只在悬停时显示下划线 */
+  .bytemd-viewer h1 a:hover, .bytemd-viewer h2 a:hover, .bytemd-viewer h3 a:hover,
+  .markdown-body h1 a:hover, .markdown-body h2 a:hover, .markdown-body h3 a:hover {
+    text-decoration: underline !important;
+  }
+  
+  /* 确保 h1 标题正确显示 */
+  .bytemd-viewer h1, .markdown-body h1 {
+    display: block !important;
+    font-size: 2em !important;
+    margin-top: 0.67em !important;
+    margin-bottom: 0.67em !important;
+    font-weight: bold !important;
   }
   
   /* 暗色模式链接样式 */
@@ -269,7 +353,10 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
         .replace(/(^|\n)(?!\n)([\*\-\+]\s|\d+\.\s)/gm, '$1\n$2')
         // 确保列表项有正确的缩进和空格
         .replace(/(^|\n)([\*\-\+])(?!\s)/gm, '$1$2 ')
-        .replace(/(^|\n)(\d+\.)(?!\s)/gm, '$1$2 ');
+        .replace(/(^|\n)(\d+\.)(?!\s)/gm, '$1$2 ')
+        // 特别处理 h1 标题，确保正确渲染
+        .replace(/(^|\n)# ([^\n]+)/g, '$1<h1 class="bytemd-h1">$2</h1>');
+        
 
       console.log('BytemdViewer: 处理内容后', {
         originalLength: body.length,
@@ -287,7 +374,7 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
     }
   }, [body]);
 
-  // 添加后处理逻辑修复列表和代码块问题
+  // 添加后处理逻辑修复列表、代码块和标题问题
   useEffect(() => {
     const fixMarkdownRendering = () => {
       try {
@@ -348,6 +435,55 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
             // 确保列表项有正确的显示样式
             (item as HTMLElement).style.display = 'list-item';
           });
+        });
+        
+        // 修复标题显示和锚点生成问题
+        const headings = document.querySelectorAll('.bytemd-viewer h1, .bytemd-viewer h2, .bytemd-viewer h3, .bytemd-viewer h4, .bytemd-viewer h5, .bytemd-viewer h6');
+        console.log(`BytemdViewer: 找到 ${headings.length} 个标题`);
+        
+        headings.forEach(heading => {
+          const tagName = heading.tagName.toLowerCase();
+          const level = parseInt(tagName.substring(1));
+          
+          // 确保标题正确显示
+          (heading as HTMLElement).style.display = 'block';
+          
+          // 确保一级标题 (h1) 正确渲染
+          if (level === 1) {
+            (heading as HTMLElement).style.fontSize = '2em';
+            (heading as HTMLElement).style.fontWeight = 'bold';
+            (heading as HTMLElement).style.marginTop = '1.5em';
+            (heading as HTMLElement).style.marginBottom = '0.8em';
+            (heading as HTMLElement).style.borderBottom = '1px solid #eaecef';
+            (heading as HTMLElement).style.paddingBottom = '0.3em';
+          }
+          
+          // 只为 h1, h2, h3 生成锚点
+          if (level <= 3) {
+            // 检查是否已经有锚点
+            const existingAnchor = heading.querySelector('a');
+            if (!existingAnchor) {
+              // 创建锚点 ID
+              const headingText = heading.textContent || '';
+              const headingId = headingText.trim().toLowerCase().replace(/\s+/g, '-');
+              heading.id = headingId;
+              
+              // 添加锚点链接
+              const anchor = document.createElement('a');
+              anchor.href = `#${headingId}`;
+              anchor.className = 'heading-anchor';
+              anchor.innerHTML = heading.innerHTML;
+              heading.innerHTML = '';
+              heading.appendChild(anchor);
+            }
+          } else {
+            // 对于 h4, h5, h6 不生成锚点
+            const anchor = heading.querySelector('a');
+            if (anchor && anchor.classList.contains('heading-anchor')) {
+              // 将锚点内容提取出来
+              heading.innerHTML = anchor.innerHTML;
+            }
+          }
         });
         
         // 修复链接样式，确保链接图标和文本在同一行
@@ -440,6 +576,39 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
       </div>
     );
   }
+
+  // 添加特殊处理来确保 h1 标题正确渲染
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const timer = setTimeout(() => {
+      const h1Elements = document.querySelectorAll('.bytemd-viewer h1, .markdown-body h1');
+      console.log(`BytemdViewer: 找到 ${h1Elements.length} 个 h1 标题`);
+      
+      h1Elements.forEach((h1, index) => {
+        // 强化 h1 标题的样式
+        const htmlH1 = h1 as HTMLElement;
+        htmlH1.style.fontSize = index === 0 ? '2.5em' : '2em';
+        htmlH1.style.fontWeight = 'bold';
+        htmlH1.style.marginTop = index === 0 ? '0.5em' : '1.5em';
+        htmlH1.style.marginBottom = '0.8em';
+        htmlH1.style.borderBottom = '1px solid #eaecef';
+        htmlH1.style.paddingBottom = '0.3em';
+        htmlH1.style.display = 'block';
+        htmlH1.style.visibility = 'visible';
+        htmlH1.style.opacity = '1';
+        htmlH1.style.color = index === 0 ? '#000' : '#24292e';
+        
+        // 添加特殊类名以便于 CSS 选择器定位
+        htmlH1.classList.add('bytemd-h1');
+        if (index === 0) {
+          htmlH1.classList.add('bytemd-h1-first');
+        }
+      });
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [processedContent]);
 
   return (
     <div className={`bytemd-viewer ${themeClass}`}>

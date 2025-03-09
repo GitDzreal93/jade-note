@@ -16,8 +16,8 @@ export default function DocsTableOfContents() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // 获取所有标题元素
-    const elements = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'))
+    // 获取所有标题元素 (只获取 h1, h2, h3)
+    const elements = Array.from(document.querySelectorAll('h1, h2, h3'))
       .filter(element => element.id) // 只获取有id的标题
       .map(element => ({
         id: element.id,
@@ -40,7 +40,7 @@ export default function DocsTableOfContents() {
       }
     );
 
-    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((heading) => {
+    document.querySelectorAll('h1, h2, h3').forEach((heading) => {
       if (heading.id) {
         observer.observe(heading);
       }
