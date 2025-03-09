@@ -174,6 +174,54 @@ const customStyles = `
   .markdown-body ol.md-list-decimal li::before {
     content: none !important;
   }
+  
+  /* 链接样式 */
+  .bytemd-viewer a, .markdown-body a {
+    color: #0969da !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+  }
+  
+  .bytemd-viewer a:hover, .markdown-body a:hover {
+    color: #0550ae !important;
+    text-decoration: underline !important;
+  }
+  
+  /* 链接图标样式 */
+  .bytemd-viewer a svg, .markdown-body a svg {
+    display: inline-block !important;
+    vertical-align: middle !important;
+    margin-right: 0.25rem !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* 修复链接内容换行问题 */
+  .bytemd-viewer a *, .markdown-body a * {
+    display: inline-block !important;
+    white-space: nowrap !important;
+  }
+  
+  /* 链接标题样式 - 修复链接标题分行问题 */
+  .bytemd-viewer h1 a, .bytemd-viewer h2 a, .bytemd-viewer h3 a,
+  .markdown-body h1 a, .markdown-body h2 a, .markdown-body h3 a {
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    width: auto !important;
+  }
+  
+  /* 暗色模式链接样式 */
+  .markdown-body-dark a {
+    color: #58a6ff !important;
+  }
+  
+  .markdown-body-dark a:hover {
+    color: #79b8ff !important;
+  }
 `;
 
 interface BytemdViewerProps {
@@ -300,6 +348,25 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
             // 确保列表项有正确的显示样式
             (item as HTMLElement).style.display = 'list-item';
           });
+        });
+        
+        // 修复链接样式，确保链接图标和文本在同一行
+        const links = document.querySelectorAll('.bytemd-viewer a');
+        console.log(`BytemdViewer: 找到 ${links.length} 个链接`);
+        links.forEach(link => {
+          // 确保链接使用正确的显示方式
+          (link as HTMLElement).style.display = 'inline-flex';
+          (link as HTMLElement).style.alignItems = 'center';
+          
+          // 如果链接内有SVG图标，确保其正确显示
+          const svg = link.querySelector('svg');
+          if (svg) {
+            // 正确处理SVG元素
+            const svgElement = svg as unknown as SVGElement;
+            svgElement.style.display = 'inline-block';
+            svgElement.style.verticalAlign = 'middle';
+            svgElement.style.marginRight = '0.25rem';
+          }
         });
 
         // 修复代码块后内容被当作代码块的问题
