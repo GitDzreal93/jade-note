@@ -187,6 +187,13 @@ const customStyles = `
     white-space: nowrap !important;
   }
   
+  /* 标题中的链接不显示蓝色 */
+  .bytemd-viewer h1 a, .bytemd-viewer h2 a, .bytemd-viewer h3 a,
+  .markdown-body h1 a, .markdown-body h2 a, .markdown-body h3 a {
+    color: inherit !important;
+    border-bottom: none !important;
+  }
+  
   .bytemd-viewer a:hover, .markdown-body a:hover {
     color: #0550ae !important;
     text-decoration: underline !important;
@@ -230,20 +237,25 @@ const customStyles = `
     opacity: 1 !important;
   }
   
-  .bytemd-viewer h2, .markdown-body h2 {
+  .bytemd-viewer h2, .markdown-body h2,
+  .bytemd-viewer > div > h2, .markdown-body > div > h2 {
     font-size: 1.5em !important;
     font-weight: bold !important;
     margin-top: 1.5em !important;
     margin-bottom: 0.8em !important;
-    border-bottom: 1px solid #eaecef !important;
     padding-bottom: 0.3em !important;
+    border-bottom: none !important;
+    border: none !important;
   }
   
-  .bytemd-viewer h3, .markdown-body h3 {
+  .bytemd-viewer h3, .markdown-body h3,
+  .bytemd-viewer > div > h3, .markdown-body > div > h3 {
     font-size: 1.25em !important;
     font-weight: bold !important;
     margin-top: 1.5em !important;
     margin-bottom: 0.8em !important;
+    border-bottom: none !important;
+    border: none !important;
   }
   
   /* 标题锚点样式 */
@@ -256,6 +268,7 @@ const customStyles = `
     color: inherit !important;
     text-decoration: none !important;
     display: block !important;
+    border-bottom: none !important;
   }
   
   .bytemd-viewer h1 a.heading-anchor:hover, 
@@ -281,6 +294,7 @@ const customStyles = `
     width: auto !important;
     text-decoration: none !important;
     color: inherit !important;
+    border-bottom: none !important;
   }
   
   /* 只在悬停时显示下划线 */
@@ -296,6 +310,17 @@ const customStyles = `
     margin-top: 0.67em !important;
     margin-bottom: 0.67em !important;
     font-weight: bold !important;
+  }
+  
+  /* 移除标题下方的所有蓝色线条 */
+  .bytemd-viewer h1::after, .bytemd-viewer h2::after, .bytemd-viewer h3::after,
+  .markdown-body h1::after, .markdown-body h2::after, .markdown-body h3::after,
+  .bytemd-viewer h1 > a::after, .bytemd-viewer h2 > a::after, .bytemd-viewer h3 > a::after,
+  .markdown-body h1 > a::after, .markdown-body h2 > a::after, .markdown-body h3 > a::after {
+    display: none !important;
+    border: none !important;
+    border-bottom: none !important;
+    content: none !important;
   }
   
   /* 暗色模式链接样式 */
