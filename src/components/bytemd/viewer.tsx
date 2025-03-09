@@ -12,6 +12,84 @@ import 'katex/dist/katex.css';
 import 'juejin-markdown-themes/dist/juejin.min.css';
 import 'juejin-markdown-themes/dist/github.min.css';
 
+// 自定义列表样式
+const listStyles = `
+  /* 基本列表样式 */
+  .bytemd-viewer ul, .markdown-body ul {
+    list-style-type: disc !important;
+    padding-left: 2em !important;
+    margin: 1em 0 !important;
+  }
+  
+  .bytemd-viewer ol, .markdown-body ol {
+    list-style-type: decimal !important;
+    padding-left: 2em !important;
+    margin: 1em 0 !important;
+  }
+  
+  .bytemd-viewer ul li, .bytemd-viewer ol li,
+  .markdown-body ul li, .markdown-body ol li {
+    display: list-item !important;
+    margin: 0.5em 0 !important;
+    position: relative !important;
+  }
+  
+  /* 定制列表标记 */
+  .bytemd-viewer ul li::marker, .markdown-body ul li::marker {
+    content: '\\2022' !important;
+    color: currentColor !important;
+    display: inline-block !important;
+  }
+  
+  .bytemd-viewer ol li::marker, .markdown-body ol li::marker {
+    color: currentColor !important;
+    display: inline-block !important;
+  }
+  
+  /* 兼容性处理，使用伪元素添加标记 */
+  .bytemd-viewer ul.md-list-disc li, .markdown-body ul.md-list-disc li {
+    position: relative !important;
+    padding-left: 0.5em !important;
+  }
+  
+  .bytemd-viewer ul.md-list-disc li::before, .markdown-body ul.md-list-disc li::before {
+    content: '\\2022' !important;
+    position: absolute !important;
+    left: -1em !important;
+    color: currentColor !important;
+    font-size: 1.2em !important;
+  }
+  
+  .bytemd-viewer ol.md-list-decimal li, .markdown-body ol.md-list-decimal li {
+    position: relative !important;
+    padding-left: 0.5em !important;
+    counter-increment: list-counter !important;
+  }
+  
+  .bytemd-viewer ol.md-list-decimal li::before, .markdown-body ol.md-list-decimal li::before {
+    content: counter(list-counter) '.' !important;
+    position: absolute !important;
+    left: -1.5em !important;
+    color: currentColor !important;
+  }
+  
+  /* 嵌套列表样式 */
+  .bytemd-viewer ul ul, .bytemd-viewer ol ul,
+  .markdown-body ul ul, .markdown-body ol ul {
+    list-style-type: circle !important;
+  }
+  
+  .bytemd-viewer ul ul ul, .bytemd-viewer ol ul ul,
+  .markdown-body ul ul ul, .markdown-body ol ul ul {
+    list-style-type: square !important;
+  }
+  
+  /* 确保列表项标记可见 */
+  .bytemd-viewer li, .markdown-body li {
+    list-style-position: outside !important;
+  }
+`;
+
 interface BytemdViewerProps {
   body: string;
 }
@@ -52,7 +130,12 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
         // 确保代码块和标题之间有空行
         .replace(/```\s*\n(#+ )/g, '```\n\n$1')
         // 统一换行符
-        .replace(/\r\n/g, '\n');
+        .replace(/\r\n/g, '\n')
+        // 确保列表项前有空行，这样可以确保列表被正确渲染
+        .replace(/(^|\n)(?!\n)([\*\-\+]\s|\d+\.\s)/gm, '$1\n$2')
+        // 确保列表项有正确的缩进和空格
+        .replace(/(^|\n)([\*\-\+])(?!\s)/gm, '$1$2 ')
+        .replace(/(^|\n)(\d+\.)(?!\s)/gm, '$1$2 ');
 
       console.log('BytemdViewer: 处理内容后', {
         originalLength: body.length,
@@ -168,6 +251,8 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
 
   return (
     <div className={`bytemd-viewer ${themeClass}`}>
+      {/* 添加自定义样式 */}
+      <style dangerouslySetInnerHTML={{ __html: listStyles }} />
       <Viewer 
         value={processedContent} 
         plugins={plugins} 
