@@ -39,6 +39,13 @@ export const customStyles = `
     border-bottom-left-radius: 4px;
     border-top-right-radius: 8px;
     pointer-events: none;
+    z-index: 10;
+  }
+  
+  /* 隐藏代码块内部的语言标记 */
+  .bytemd-viewer pre code > .token:first-child,
+  .markdown-body pre code > .token:first-child {
+    display: none !important;
   }
   
   /* 暗色模式代码块 */

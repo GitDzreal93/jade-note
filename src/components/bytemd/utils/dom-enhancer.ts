@@ -40,15 +40,23 @@ const enhanceCodeBlocks = (): void => {
     // 获取语言类型
     const codeElement = block.querySelector('code');
     if (codeElement) {
-      const classNames = codeElement.className.split(' ');
-      let language = 'text';
+      // 检查是否已经有语言标记
+      let language = block.getAttribute('data-lang') || '';
       
-      // 从类名中提取语言类型
-      for (const className of classNames) {
-        if (className.startsWith('language-')) {
-          language = className.replace('language-', '');
-          break;
+      if (!language) {
+        // 从类名中提取语言类型
+        const classNames = codeElement.className.split(' ');
+        for (const className of classNames) {
+          if (className.startsWith('language-')) {
+            language = className.replace('language-', '');
+            break;
+          }
         }
+      }
+      
+      // 如果没有找到语言标记，默认为text
+      if (!language) {
+        language = 'text';
       }
       
       // 设置语言标记
@@ -70,6 +78,21 @@ const enhanceCodeBlocks = (): void => {
         block.classList.add('language-css');
       } else {
         block.classList.add(`language-${language}`);
+      }
+      
+      // 清理代码内容中的语言标记行
+      const codeText = codeElement.textContent || '';
+      if (codeText.startsWith('```')) {
+        const lines = codeText.split('\n');
+        // 移除第一行的语言标记
+        if (lines[0].match(/^```\S*$/)) {
+          lines.shift();
+        }
+        // 移除最后一行的结束标记
+        if (lines.length > 0 && lines[lines.length - 1].trim() === '```') {
+          lines.pop();
+        }
+        codeElement.textContent = lines.join('\n');
       }
     }
   });
@@ -191,8 +214,9 @@ const optimizeCodeBlockContent = (): void => {
   allPres.forEach(codeElement => {
     const codeText = codeElement.textContent || '';
     
-    // 检查代码块中是否包含 ``` 结束标记后还有其他标题等内容
-    const closeBlockMatch = codeText.match(/```\s*\n(##\s+|###\s+|\*\*|\n\n)/m);
+    // 检查代码块中是否包含 ``` 结束标记后还有其他内容
+    // 扩展匹配模式，包括更多可能的后续内容标记
+    const closeBlockMatch = codeText.match(/```\s*\n(#+ |[\*\-\+]\s|\d+\.\s|\n\n|<|>)/m);
     if (closeBlockMatch && closeBlockMatch.index) {
       console.log('BytemdViewer: 优化代码块内容结构');
       // 找到了错误包含的内容，需要分割代码块
@@ -214,6 +238,27 @@ const optimizeCodeBlockContent = (): void => {
           preElement.parentNode.insertBefore(container, preElement.nextSibling);
         }
       }
+    }
+    
+    // 检查并移除代码块内部的语言标记和结束标记
+    const lines = codeText.split('\n');
+    let modified = false;
+    
+    // 检查第一行是否为语言标记
+    if (lines.length > 0 && lines[0].match(/^```\S*$/)) {
+      lines.shift();
+      modified = true;
+    }
+    
+    // 检查最后一行是否为结束标记
+    if (lines.length > 0 && lines[lines.length - 1].trim() === '```') {
+      lines.pop();
+      modified = true;
+    }
+    
+    // 如果有修改，更新代码内容
+    if (modified) {
+      codeElement.textContent = lines.join('\n');
     }
   });
 }; 
