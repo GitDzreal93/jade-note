@@ -6,7 +6,7 @@ import { SecurityProvider } from '@/components/security/SecurityProvider';
 
 interface ClientDocsLayoutProps {
   children: React.ReactNode;
-  securityConfig: SecurityConfig;
+  securityConfig?: SecurityConfig;
 }
 
 // 禁止复制的样式

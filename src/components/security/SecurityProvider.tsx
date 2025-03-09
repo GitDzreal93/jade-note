@@ -12,10 +12,10 @@ const defaultConfig: SecurityConfig = {
   watermark: {
     enabled: true,
     text: '保密文档',
-    color: 'rgba(0, 0, 0, 0.1)',
-    fontSize: '16px',
-    opacity: 0.1,
-    rotate: -30
+    color: 'rgba(0, 0, 0, 0.12)',    // 使用黑色，适中的透明度
+    fontSize: '16px',                // 适中的字体大小
+    rotate: -30,
+    username: ''
   },
   keyboardShortcuts: {
     enabled: true,
@@ -34,31 +34,21 @@ const defaultConfig: SecurityConfig = {
 };
 
 export function SecurityProvider({ children, config }: SecurityProviderProps) {
-  const mergedConfig = { ...defaultConfig, ...config };
+  const mergedConfig = {
+    ...defaultConfig,
+    ...(config || {}),
+    watermark: config?.watermark || defaultConfig.watermark
+  };
+
+  console.log('SecurityProvider config:', config);
+  console.log('SecurityProvider mergedConfig:', mergedConfig);
 
   // 添加水印
   useEffect(() => {
     if (!mergedConfig.watermark?.enabled) return;
 
     const watermark = document.createElement('div');
-    const { text, color, fontSize, opacity, rotate } = mergedConfig.watermark;
-
-    watermark.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 9999;
-      background-image: repeating-linear-gradient(
-        ${rotate}deg,
-        ${color || 'rgba(0, 0, 0, 0.1)'},
-        ${color || 'rgba(0, 0, 0, 0.1)'} 1px,
-        transparent 1px,
-        transparent 100px
-      );
-    `;
+    const { text, color, fontSize, opacity, rotate, username } = mergedConfig.watermark;
 
     // 创建水印文字
     const createWatermarkText = () => {
@@ -66,22 +56,105 @@ export function SecurityProvider({ children, config }: SecurityProviderProps) {
       const ctx = canvas.getContext('2d');
       if (!ctx) return '';
 
-      canvas.width = 200;
-      canvas.height = 200;
-      ctx.font = `${fontSize || '16px'} Arial`;
-      ctx.fillStyle = color || 'rgba(0, 0, 0, 0.1)';
-      ctx.globalAlpha = opacity || 0.1;
+      // 保持画布尺寸
+      canvas.width = 1200;
+      canvas.height = 1000;
+
+      // 设置文字样式
+      ctx.font = `${fontSize || '14px'} Arial`;
+      ctx.fillStyle = color || 'rgba(120, 120, 120, 0.75)';  // 添加默认颜色
+      ctx.globalAlpha = 1;    // 不再使用 globalAlpha，因为透明度已经包含在颜色中
+      
+      // 移除阴影效果
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+
+      // 在画布上绘制文字
+      ctx.translate(600, 500);
       ctx.rotate((rotate || -30) * Math.PI / 180);
-      ctx.fillText(text, 0, 100);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      // 组合水印文字
+      const watermarkText = username ? `${username} - ${text}` : text;
+      
+      // 使用更大的间距绘制水印，减少密度
+      const positions = [
+        [0, 0],           // 中心
+        [-400, -200],     // 左上
+        [400, 200],       // 右下
+        [-400, 200],      // 左下
+        [400, -200],      // 右上
+        [0, -400],        // 上
+        [0, 400],         // 下
+        [-400, 0],        // 左
+        [400, 0],         // 右
+        [-200, -400],     // 左上偏上
+        [200, -400],      // 右上偏上
+        [-200, 400],      // 左下偏下
+        [200, 400],       // 右下偏下
+        [-600, -300],     // 远左上
+        [600, 300],       // 远右下
+        [-600, 300],      // 远左下
+        [600, -300],      // 远右上
+      ];
+
+      // 绘制所有位置的水印
+      positions.forEach(([x, y]) => {
+        ctx.fillText(watermarkText, x, y);
+      });
       
       return `url(${canvas.toDataURL()})`;
     };
 
+    // 更新水印容器样式
+    watermark.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 99999;
+      background-repeat: repeat;
+      background-position: center center;
+      background-size: 1200px 1000px;
+      opacity: 1;
+    `;
+
     watermark.style.backgroundImage = createWatermarkText();
     document.body.appendChild(watermark);
 
+    // 监听 DOM 变化，防止水印被移除
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (!document.body.contains(watermark)) {
+          document.body.appendChild(watermark.cloneNode(true));
+        }
+      });
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+
+    // 定期检查水印是否存在（以防万一）
+    const checkInterval = setInterval(() => {
+      if (!document.body.contains(watermark)) {
+        document.body.appendChild(watermark.cloneNode(true));
+      }
+    }, 2000);
+
     return () => {
-      document.body.removeChild(watermark);
+      observer.disconnect();
+      clearInterval(checkInterval);
+      if (document.body.contains(watermark)) {
+        document.body.removeChild(watermark);
+      }
     };
   }, [mergedConfig.watermark]);
 

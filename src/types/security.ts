@@ -6,6 +6,7 @@ export interface SecurityConfig {
     fontSize?: string;
     opacity?: number;
     rotate?: number;
+    username?: string;
   };
   keyboardShortcuts?: {
     enabled: boolean;
