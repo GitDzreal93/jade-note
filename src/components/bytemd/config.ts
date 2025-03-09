@@ -39,9 +39,20 @@ export const plugins = [
 ];
 
 export const sanitize: EditorProps["sanitize"] = (schema) => {
+  // 打印原始 schema 以便于调试
+  console.log('Debug: 原始 sanitize schema', schema);
+  
   const customerSchema = merge(schema, {
-    tagNames: ["iframe"],
+    // 添加允许的 HTML 标签
+    tagNames: [
+      "iframe", "div", "span", "h1", "h2", "h3", "h4", "h5", "h6",
+      "p", "br", "hr", "a", "img", "pre", "code", "ul", "ol", "li",
+      "blockquote", "table", "thead", "tbody", "tr", "th", "td"
+    ],
     attributes: {
+      // 允许所有元素使用 style 和 class 属性
+      "*": ["style", "class", "id"],
+      // iframe 特殊属性
       iframe: [
         "src",
         "style",
@@ -53,9 +64,19 @@ export const sanitize: EditorProps["sanitize"] = (schema) => {
         "frameborder",
         "framespacing",
         "allowfullscreen",
+        "width",
+        "height",
+        "allow",
       ],
+      // 链接属性
+      a: ["href", "title", "target", "rel"],
+      // 图片属性
+      img: ["src", "alt", "title", "width", "height"],
     },
   } as typeof schema);
-
+  
+  // 打印合并后的 schema 以便于调试
+  console.log('Debug: 合并后的 sanitize schema', customerSchema);
+  
   return customerSchema;
 };

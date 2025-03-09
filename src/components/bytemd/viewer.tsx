@@ -581,34 +581,139 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
-    const timer = setTimeout(() => {
-      const h1Elements = document.querySelectorAll('.bytemd-viewer h1, .markdown-body h1');
-      console.log(`BytemdViewer: 找到 ${h1Elements.length} 个 h1 标题`);
+    // 调试日志：输出处理前的内容
+    console.log('Debug: 原始内容', {
+      processedContent,
+      bodyLength: body.length,
+      processedLength: processedContent.length,
+      hasH1Tag: processedContent.includes('<h1'),
+      hasH1Markdown: processedContent.includes('# '),
+      firstFewChars: processedContent.substring(0, 200)
+    });
+    
+    // 检查DOM结构
+    const checkDomStructure = () => {
+      console.log('Debug: 检查DOM结构');
       
-      h1Elements.forEach((h1, index) => {
-        // 强化 h1 标题的样式
-        const htmlH1 = h1 as HTMLElement;
-        htmlH1.style.fontSize = index === 0 ? '2.5em' : '2em';
-        htmlH1.style.fontWeight = 'bold';
-        htmlH1.style.marginTop = index === 0 ? '0.5em' : '1.5em';
-        htmlH1.style.marginBottom = '0.8em';
-        htmlH1.style.borderBottom = '1px solid #eaecef';
-        htmlH1.style.paddingBottom = '0.3em';
-        htmlH1.style.display = 'block';
-        htmlH1.style.visibility = 'visible';
-        htmlH1.style.opacity = '1';
-        htmlH1.style.color = index === 0 ? '#000' : '#24292e';
+      // 检查所有可能的h1选择器
+      const selectors = [
+        '.bytemd-viewer h1', 
+        '.markdown-body h1',
+        '.bytemd-viewer > div > h1', 
+        '.markdown-body > div > h1',
+        'h1',
+        'div > h1'
+      ];
+      
+      selectors.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        console.log(`Debug: 选择器 "${selector}" 找到 ${elements.length} 个元素`);
         
-        // 添加特殊类名以便于 CSS 选择器定位
-        htmlH1.classList.add('bytemd-h1');
-        if (index === 0) {
-          htmlH1.classList.add('bytemd-h1-first');
+        if (elements.length > 0) {
+          elements.forEach((el, i) => {
+            const htmlEl = el as HTMLElement;
+            console.log(`Debug: 元素 ${i} 的内容:`, {
+              innerHTML: htmlEl.innerHTML,
+              outerHTML: htmlEl.outerHTML,
+              textContent: htmlEl.textContent,
+              display: htmlEl.style.display || getComputedStyle(htmlEl).display,
+              visibility: htmlEl.style.visibility || getComputedStyle(htmlEl).visibility,
+              fontSize: htmlEl.style.fontSize || getComputedStyle(htmlEl).fontSize
+            });
+          });
         }
       });
-    }, 100);
+      
+      // 检查整个文档结构
+      console.log('Debug: 文档结构', {
+        bytemdViewer: document.querySelector('.bytemd-viewer')?.innerHTML?.substring(0, 500),
+        markdownBody: document.querySelector('.markdown-body')?.innerHTML?.substring(0, 500)
+      });
+    };
     
-    return () => clearTimeout(timer);
-  }, [processedContent]);
+    // 尝试多次检查，因为渲染可能有延迟
+    const timer1 = setTimeout(checkDomStructure, 100);
+    const timer2 = setTimeout(checkDomStructure, 500);
+    const timer3 = setTimeout(checkDomStructure, 1000);
+    
+    const timer = setTimeout(() => {
+      const h1Elements = document.querySelectorAll('.bytemd-viewer h1, .markdown-body h1, .bytemd-viewer > div > h1, .markdown-body > div > h1, h1');
+      console.log(`BytemdViewer: 找到 ${h1Elements.length} 个 h1 标题`);
+      
+      if (h1Elements.length === 0) {
+        console.log('Debug: 没有找到 h1 元素，尝试手动创建');
+        
+        // 尝试手动创建 h1 元素
+        const container = document.querySelector('.bytemd-viewer') || document.querySelector('.markdown-body');
+        if (container) {
+          // 检查是否已经存在“一级目录”文本
+          const content = container.textContent || '';
+          if (content.includes('一级目录') && !document.querySelector('.manually-added-h1')) {
+            console.log('Debug: 找到文本“一级目录”，手动创建 h1');
+            
+            // 在容器开头插入 h1
+            const h1 = document.createElement('h1');
+            h1.textContent = '一级目录';
+            h1.className = 'manually-added-h1 bytemd-h1 bytemd-h1-first';
+            h1.style.fontSize = '2.5em';
+            h1.style.fontWeight = 'bold';
+            h1.style.marginTop = '0.5em';
+            h1.style.marginBottom = '0.8em';
+            h1.style.borderBottom = '1px solid #eaecef';
+            h1.style.paddingBottom = '0.3em';
+            h1.style.display = 'block';
+            h1.style.visibility = 'visible';
+            h1.style.opacity = '1';
+            h1.style.color = '#000';
+            
+            // 尝试在适当的位置插入
+            const firstParagraph = container.querySelector('p');
+            if (firstParagraph) {
+              container.insertBefore(h1, firstParagraph.nextSibling);
+            } else {
+              container.prepend(h1);
+            }
+            
+            console.log('Debug: 手动创建的 h1 元素', h1);
+          }
+        }
+      } else {
+        h1Elements.forEach((h1, index) => {
+          // 强化 h1 标题的样式
+          const htmlH1 = h1 as HTMLElement;
+          console.log(`Debug: 处理 h1 元素 ${index}`, {
+            innerHTML: htmlH1.innerHTML,
+            textContent: htmlH1.textContent,
+            className: htmlH1.className
+          });
+          
+          htmlH1.style.fontSize = index === 0 ? '2.5em' : '2em';
+          htmlH1.style.fontWeight = 'bold';
+          htmlH1.style.marginTop = index === 0 ? '0.5em' : '1.5em';
+          htmlH1.style.marginBottom = '0.8em';
+          htmlH1.style.borderBottom = '1px solid #eaecef';
+          htmlH1.style.paddingBottom = '0.3em';
+          htmlH1.style.display = 'block';
+          htmlH1.style.visibility = 'visible';
+          htmlH1.style.opacity = '1';
+          htmlH1.style.color = index === 0 ? '#000' : '#24292e';
+          
+          // 添加特殊类名以便于 CSS 选择器定位
+          htmlH1.classList.add('bytemd-h1');
+          if (index === 0) {
+            htmlH1.classList.add('bytemd-h1-first');
+          }
+        });
+      }
+    }, 300);
+    
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+    };
+  }, [processedContent, body]);
 
   return (
     <div className={`bytemd-viewer ${themeClass}`}>
