@@ -3,17 +3,45 @@ import { getDocsData } from '@/lib/docs';
 import type { DocNode } from '@/lib/docs';
 import DocsSidebar from './DocsSidebar';
 import DocsTableOfContents from './DocsTableOfContents';
+import type { SecurityConfig } from '@/types/security';
+import { ClientDocsLayout } from './ClientDocsLayout';
 
 interface DocsLayoutProps {
   children: React.ReactNode;
 }
+
+// 安全配置
+const securityConfig: SecurityConfig = {
+  watermark: {
+    enabled: true,
+    text: 'Jade Note 保密文档',
+    color: 'rgba(0, 0, 0, 0.1)',
+    fontSize: '16px',
+    opacity: 0.1,
+    rotate: -30
+  },
+  keyboardShortcuts: {
+    enabled: true,
+    preventDefault: {
+      ctrlC: true,
+      ctrlS: true,
+      ctrlP: true,
+      ctrlShiftI: true,
+      f12: true
+    }
+  },
+  devTools: {
+    enabled: true,
+    message: '为了保护文档安全，已禁用开发者工具'
+  }
+};
 
 export async function DocsLayout({ children }: DocsLayoutProps) {
   // Get the docs data directly from the server
   const docs = await getDocsData();
   
   return (
-    <div className="min-h-[calc(100vh-4rem)] pt-8">
+    <ClientDocsLayout securityConfig={securityConfig}>
       <div className="max-w-[90rem] mx-auto relative">
         <div className="flex pb-8">
           {/* 左侧边栏 */}
@@ -36,6 +64,6 @@ export async function DocsLayout({ children }: DocsLayoutProps) {
           </aside>
         </div>
       </div>
-    </div>
+    </ClientDocsLayout>
   );
 }
