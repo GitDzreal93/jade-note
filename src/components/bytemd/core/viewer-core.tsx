@@ -20,6 +20,9 @@ import { preprocessMarkdown } from '../utils/content-formatter';
 import { enhanceMarkdownRendering } from '../utils/dom-enhancer';
 import { analyzeHeadingStructure, optimizeHeadingDisplay } from '../utils/heading-manager';
 
+// 导入付费墙组件
+import { PaywallProvider, PaywallPreview, detectPremiumContent } from '../../paywall';
+
 // 语言显示名称映射
 const LANGUAGE_DISPLAY_NAMES: Record<string, string> = {
   typescript: 'ts',
@@ -37,12 +40,17 @@ const LANGUAGE_DISPLAY_NAMES: Record<string, string> = {
 
 interface BytemdViewerProps {
   body: string;
+  showPaywall?: boolean;  // 是否显示付费墙
 }
 
-export const BytemdViewer = ({ body }: BytemdViewerProps) => {
+export const BytemdViewer = ({ 
+  body, 
+  showPaywall = true 
+}: BytemdViewerProps) => {
   const { theme } = useTheme();
   const [processedContent, setProcessedContent] = useState(body);
   const [renderError, setRenderError] = useState<string | null>(null);
+  const [isPremiumContent, setIsPremiumContent] = useState(false);
   
   // 根据当前主题加载不同的样式
   const themeClass = useMemo(() => {
@@ -52,6 +60,10 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
   // 预处理内容，优化Markdown渲染效果
   useEffect(() => {
     try {
+      // 检测是否为付费内容
+      const isPremium = detectPremiumContent(body);
+      setIsPremiumContent(isPremium);
+      
       // 使用内容格式化工具处理内容
       const processed = preprocessMarkdown(body);
       setProcessedContent(processed);
@@ -186,7 +198,7 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
     );
   }
 
-  return (
+  const renderContent = () => (
     <div className={`bytemd-viewer ${themeClass}`}>
       {/* 添加自定义样式 */}
       <style dangerouslySetInnerHTML={{ __html: customStyles }} />
@@ -197,4 +209,17 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
       />
     </div>
   );
-}; 
+
+  // 包装付费墙
+  return (
+    <PaywallProvider>
+      {showPaywall && isPremiumContent ? (
+        <PaywallPreview content={processedContent}>
+          {renderContent()}
+        </PaywallPreview>
+      ) : (
+        renderContent()
+      )}
+    </PaywallProvider>
+  );
+};

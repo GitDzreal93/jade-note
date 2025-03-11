@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { getDocsData } from '@/lib/docs';
 import type { DocNode } from '@/lib/docs';
 import DocsSidebar from './DocsSidebar';
-import DocsTableOfContents from './DocsTableOfContents';
+import DocsTableOfContentsWrapper from './DocsTableOfContentsWrapper';
 import { ClientDocsLayout } from './ClientDocsLayout';
 
 interface DocsLayoutProps {
@@ -33,7 +33,7 @@ export async function DocsLayout({ children }: DocsLayoutProps) {
 
           {/* 右侧目录 */}
           <aside className="fixed right-[max(0px,calc((100%-90rem)/2))] w-64 hidden xl:block" style={{ top: 'calc(4rem + 2rem)' }}>
-            <DocsTableOfContents />
+            <DocsTableOfContentsWrapper />
           </aside>
         </div>
       </div>
