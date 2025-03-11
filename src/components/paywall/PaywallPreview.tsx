@@ -53,7 +53,7 @@ export const PaywallPreview: React.FC<PaywallPreviewProps> = ({
   return (
     <div className="relative">
       {/* 预览内容区域 - 只显示预览部分 */}
-      <div className="preview-content">
+      <div className="preview-content relative">
         {/* 直接渲染预览内容 */}
         <div className="bytemd-viewer markdown-body">
           <Viewer 
@@ -62,18 +62,18 @@ export const PaywallPreview: React.FC<PaywallPreviewProps> = ({
             sanitize={sanitize}
           />
         </div>
+        
+        {/* 模糊遮罩层 - 在预览内容底部添加渐变效果 */}
+        <div 
+          className="absolute bottom-0 left-0 right-0"
+          style={{
+            height: `${config.preview.gradientHeightPx}px`,
+            background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%)',
+            pointerEvents: 'none',
+            zIndex: 5
+          }}
+        />
       </div>
-      
-      {/* 模糊遮罩层 - 在预览内容上方添加渐变效果 */}
-      <div 
-        className="absolute bottom-0 left-0 right-0"
-        style={{
-          height: `${config.preview.gradientHeightPx}px`,
-          background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%)',
-          pointerEvents: 'none',
-          zIndex: 5
-        }}
-      />
       
       {/* 付费墙组件 */}
       <div className="mt-4">
