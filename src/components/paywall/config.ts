@@ -26,6 +26,14 @@ export interface PromotionConfig {
 }
 
 /**
+ * 付费内容信息接口
+ */
+export interface PremiumContentInfo {
+  isPremium: boolean;
+  previewPercentage?: number;
+}
+
+/**
  * 默认付费墙配置
  */
 export const paywallConfig = {
@@ -86,27 +94,62 @@ export const mockData = {
 };
 
 /**
- * 判断内容是否付费
+ * 判断内容是否付费并获取预览百分比
  * @param content 内容
- * @returns 是否为付费内容
+ * @returns 付费内容信息
  */
-export function detectPremiumContent(content: string): boolean {
-  // 这里可以根据内容特征或元数据判断是否为付费内容
-  // 当前简单实现，仅用于演示
-  return content.includes('<!-- premium -->') || 
-         content.includes('<!-- paywall -->');
+export function detectPremiumContent(content: string): PremiumContentInfo {
+  const result: PremiumContentInfo = {
+    isPremium: false
+  };
+  
+  // 检查特殊注释标记
+  if (content.includes('<!-- premium -->') || 
+      content.includes('<!-- paywall -->')) {
+    result.isPremium = true;
+  }
+  
+  // 检查frontmatter
+  const frontmatterMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
+  if (frontmatterMatch) {
+    const frontmatter = frontmatterMatch[1];
+    
+    // 检查是否为付费内容
+    if (frontmatter.includes('premium: true') || 
+        frontmatter.includes('paywall: true')) {
+      result.isPremium = true;
+    }
+    
+    // 提取预览百分比
+    const percentageMatch = frontmatter.match(/percentage:\s*(\d+)/);
+    if (percentageMatch) {
+      const percentage = parseInt(percentageMatch[1], 10);
+      if (!isNaN(percentage) && percentage >= 0 && percentage <= 100) {
+        result.previewPercentage = percentage;
+      }
+    }
+  }
+  
+  return result;
 }
 
 /**
  * 获取内容预览
  * @param content 完整内容
- * @param percentage 预览百分比
+ * @param contentInfo 付费内容信息
  * @returns 预览内容
  */
 export function getContentPreview(
   content: string, 
-  percentage: number = paywallConfig.preview.defaultPercentage
+  contentInfo?: PremiumContentInfo
 ): string {
+  // 确定预览百分比
+  let percentage = paywallConfig.preview.defaultPercentage;
+  
+  if (contentInfo?.previewPercentage !== undefined) {
+    percentage = contentInfo.previewPercentage;
+  }
+  
   const minLength = paywallConfig.preview.minPreviewLength;
   const previewLength = Math.max(
     minLength,

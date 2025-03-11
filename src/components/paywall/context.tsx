@@ -9,7 +9,8 @@ import {
   paywallConfig,
   mockData,
   detectPremiumContent,
-  getContentPreview
+  getContentPreview,
+  PremiumContentInfo
 } from './config';
 
 // 付费墙上下文接口
@@ -90,19 +91,19 @@ export const PaywallProvider: React.FC<{
   
   // 检查内容是否为付费内容
   const checkIsPremiumContent = (content: string): boolean => {
-    return detectPremiumContent(content);
+    const contentInfo = detectPremiumContent(content);
+    return contentInfo.isPremium;
   };
   
   // 设置内容
   const setContent = (content: string) => {
-    const isPremium = checkIsPremiumContent(content);
-    setIsArticlePremium(isPremium);
+    const contentInfo = detectPremiumContent(content);
+    setIsArticlePremium(contentInfo.isPremium);
     setFullContent(content);
     
-    if (isPremium && !membershipStatus.isPremium) {
+    if (contentInfo.isPremium && !membershipStatus.isPremium) {
       // 非会员查看付费内容，只显示预览
-      const previewPercentage = mockData.articlePaywall.previewPercentage;
-      setPreviewContent(getContentPreview(content, previewPercentage));
+      setPreviewContent(getContentPreview(content, contentInfo));
     } else {
       // 免费内容或会员，显示完整内容
       setPreviewContent(null);

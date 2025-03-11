@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { usePaywall } from './context';
 import { ArticlePaywall } from './ArticlePaywall';
+import { Viewer } from '@bytemd/react';
+import { plugins, sanitize } from '../bytemd/config';
 
 interface PaywallPreviewProps {
   content: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 /**
@@ -25,6 +27,7 @@ export const PaywallPreview: React.FC<PaywallPreviewProps> = ({
     checkIsPremiumContent,
     setContent,
     previewContent,
+    fullContent,
     config
   } = usePaywall();
   
@@ -43,12 +46,22 @@ export const PaywallPreview: React.FC<PaywallPreviewProps> = ({
     return <>{children}</>;
   }
   
-  // 付费内容且非会员，显示预览内容和付费墙
+  // 直接使用预览内容作为显示内容
+  const contentToShow = previewContent || '';
+  
+  // 付费内容且非会员，只显示预览内容和付费墙
   return (
     <div className="relative">
-      {/* 预览内容区域 */}
-      <div>
-        {children}
+      {/* 预览内容区域 - 只显示预览部分 */}
+      <div className="preview-content">
+        {/* 直接渲染预览内容 */}
+        <div className="bytemd-viewer markdown-body">
+          <Viewer 
+            value={contentToShow} 
+            plugins={plugins} 
+            sanitize={sanitize}
+          />
+        </div>
       </div>
       
       {/* 模糊遮罩层 - 在预览内容上方添加渐变效果 */}
@@ -58,11 +71,14 @@ export const PaywallPreview: React.FC<PaywallPreviewProps> = ({
           height: `${config.preview.gradientHeightPx}px`,
           background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%)',
           pointerEvents: 'none',
+          zIndex: 5
         }}
       />
       
       {/* 付费墙组件 */}
-      <ArticlePaywall source="article_preview" />
+      <div className="mt-4">
+        <ArticlePaywall source="article_preview" />
+      </div>
     </div>
   );
 };

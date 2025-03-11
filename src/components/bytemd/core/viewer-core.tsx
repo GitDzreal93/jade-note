@@ -19,9 +19,10 @@ import { customStyles } from '../styles/theme';
 import { preprocessMarkdown } from '../utils/content-formatter';
 import { enhanceMarkdownRendering } from '../utils/dom-enhancer';
 import { analyzeHeadingStructure, optimizeHeadingDisplay } from '../utils/heading-manager';
-
-// 导入付费墙组件
-import { PaywallProvider, PaywallPreview, detectPremiumContent } from '../../paywall';
+import { PaywallProvider } from "../../paywall/context";
+import { detectPremiumContent } from "../../paywall/config";
+import { PaywallPreview } from "../../paywall/PaywallPreview";
+import { ArticlePaywall } from '../../paywall';
 
 // 语言显示名称映射
 const LANGUAGE_DISPLAY_NAMES: Record<string, string> = {
@@ -61,11 +62,18 @@ export const BytemdViewer = ({
   useEffect(() => {
     try {
       // 检测是否为付费内容
-      const isPremium = detectPremiumContent(body);
-      setIsPremiumContent(isPremium);
+      const contentInfo = detectPremiumContent(body);
+      setIsPremiumContent(contentInfo.isPremium);
+      
+      // 移除frontmatter (如果存在)
+      let contentToProcess = body;
+      const frontmatterMatch = body.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
+      if (frontmatterMatch) {
+        contentToProcess = body.replace(frontmatterMatch[0], '');
+      }
       
       // 使用内容格式化工具处理内容
-      const processed = preprocessMarkdown(body);
+      const processed = preprocessMarkdown(contentToProcess);
       setProcessedContent(processed);
       setRenderError(null);
 
@@ -198,7 +206,8 @@ export const BytemdViewer = ({
     );
   }
 
-  const renderContent = () => (
+  // 渲染完整内容
+  const renderFullContent = () => (
     <div className={`bytemd-viewer ${themeClass}`}>
       {/* 添加自定义样式 */}
       <style dangerouslySetInnerHTML={{ __html: customStyles }} />
@@ -214,11 +223,11 @@ export const BytemdViewer = ({
   return (
     <PaywallProvider>
       {showPaywall && isPremiumContent ? (
-        <PaywallPreview content={processedContent}>
-          {renderContent()}
-        </PaywallPreview>
+        <div className="relative">
+          <PaywallPreview content={body} />
+        </div>
       ) : (
-        renderContent()
+        renderFullContent()
       )}
     </PaywallProvider>
   );
