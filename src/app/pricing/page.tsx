@@ -1,34 +1,17 @@
-import Link from 'next/link';
 import { CheckIcon } from '@heroicons/react/24/solid';
+import { StripeBuyButton } from '@/components/stripe/StripeBuyButton';
 
 const plans = [
   {
-    name: '月度会员',
+    name: '免费',
     description: '适合短期学习和体验的用户',
-    price: '¥29',
-    interval: '/月',
+    price: '¥0',
+    interval: '/永久',
     features: [
-      '所有文档完整阅读权限',
-      '高清图片下载',
-      '代码示例下载',
+      '部分免费文档可读',
     ],
-    cta: '开始订阅',
+    cta: '',
     highlighted: false,
-  },
-  {
-    name: '年度会员',
-    description: '适合长期学习，性价比最高',
-    price: '¥299',
-    interval: '/年',
-    features: [
-      '所有月度会员功能',
-      '优先更新内容',
-      '技术问答支持',
-      '节省 15% 费用',
-    ],
-    cta: '开始订阅',
-    highlighted: true,
-    badge: '推荐',
   },
   {
     name: '终身会员',
@@ -42,7 +25,7 @@ const plans = [
       '超值优惠价格',
     ],
     cta: '立即购买',
-    highlighted: false,
+    highlighted: true,
   },
 ];
 
@@ -70,9 +53,9 @@ const faqs = [
 
 export default function PricingPage() {
   return (
-    <main>
+    <main className="flex flex-col items-center">
       {/* Pricing Header */}
-      <div className="bg-white py-16">
+      <div className="bg-white py-16 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
@@ -86,8 +69,8 @@ export default function PricingPage() {
       </div>
 
       {/* Pricing Cards */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="mt-12 space-y-4 sm:mt-16 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:max-w-4xl lg:mx-auto xl:max-w-none xl:grid-cols-3">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 w-full">
+        <div className="mt-12 flex flex-col sm:flex-row justify-center gap-6 sm:gap-8 lg:gap-10">
           {plans.map((plan) => (
             <div
               key={plan.name}
@@ -95,7 +78,7 @@ export default function PricingPage() {
                 plan.highlighted
                   ? 'border-emerald-200 bg-emerald-50'
                   : 'border-gray-200'
-              } border rounded-lg shadow-sm divide-y divide-gray-200`}
+              } border rounded-lg shadow-sm divide-y divide-gray-200 flex-1 max-w-md mx-auto sm:mx-0`}
             >
               <div className="p-6">
                 <h2 className="text-lg leading-6 font-medium text-gray-900 flex items-center">
@@ -115,12 +98,13 @@ export default function PricingPage() {
                     {plan.interval}
                   </span>
                 </p>
-                <Link
-                  href="/auth/register"
-                  className="mt-8 block w-full bg-emerald-600 border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-emerald-700"
-                >
-                  {plan.cta}
-                </Link>
+                {plan.cta && plan.cta.trim() !== '' && (
+                  <StripeBuyButton
+                    buyButtonId={process.env.NEXT_PUBLIC_STRIPE_BUTTON_ID || ''}
+                    publishableKey={process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''}
+                    className="mt-8 block w-full"
+                  />
+                )}
               </div>
               <div className="pt-6 pb-8 px-6">
                 <h3 className="text-xs font-medium text-gray-900 tracking-wide uppercase">
@@ -144,7 +128,7 @@ export default function PricingPage() {
       </div>
 
       {/* FAQs */}
-      <div className="bg-gray-50 py-16">
+      <div className="bg-gray-50 py-16 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-12">
             常见问题

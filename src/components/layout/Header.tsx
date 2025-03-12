@@ -4,31 +4,29 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { BookOpenIcon } from '@heroicons/react/24/solid';
 import { usePathname } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client'
 import UserMenu from '../auth/UserMenu';
 import clsx from 'clsx';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Header() {
   const pathname = usePathname();
-  const [user, setUser] = useState(null);
-  const supabase = createClient();
+  const { user } = useAuth();
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 0);
     };
-    getUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <nav className="bg-white shadow-sm">
+    <nav className={clsx(
+      'bg-white sticky top-0 z-50 transition-shadow duration-200',
+      scrolled ? 'shadow-md' : 'shadow-sm'
+    )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
