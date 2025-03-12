@@ -23,9 +23,7 @@ export const preprocessMarkdown = (content: string): string => {
       .replace(/(^|\n)(?!\n)([\*\-\+]\s|\d+\.\s)/gm, '$1\n$2')
       // 确保列表项有正确的缩进和空格
       .replace(/(^|\n)([\*\-\+])(?!\s)/gm, '$1$2 ')
-      .replace(/(^|\n)(\d+\.)(?!\s)/gm, '$1$2 ')
-      // 特别处理 h1 标题，确保正确渲染
-      .replace(/(^|\n)# ([^\n]+)/g, '$1<h1 class="bytemd-h1">$2</h1>');
+      .replace(/(^|\n)(\d+\.)(?!\s)/gm, '$1$2 ');
       
     console.log('BytemdViewer: 处理内容后', {
       originalLength: content.length,

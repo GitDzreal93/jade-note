@@ -23,6 +23,7 @@ import { PaywallProvider } from "../../paywall/context";
 import { detectPremiumContent } from "../../paywall/config";
 import { PaywallPreview } from "../../paywall/PaywallPreview";
 import { ArticlePaywall } from '../../paywall';
+import { getMarkdownClassName } from '../styles/markdown';
 
 // 语言显示名称映射
 const LANGUAGE_DISPLAY_NAMES: Record<string, string> = {
@@ -42,11 +43,13 @@ const LANGUAGE_DISPLAY_NAMES: Record<string, string> = {
 interface BytemdViewerProps {
   body: string;
   showPaywall?: boolean;  // 是否显示付费墙
+  className?: string;  // 添加 className 参数
 }
 
 export const BytemdViewer = ({ 
   body, 
-  showPaywall = true 
+  showPaywall = true,
+  className = ''
 }: BytemdViewerProps) => {
   const { theme } = useTheme();
   const [processedContent, setProcessedContent] = useState(body);
@@ -65,15 +68,51 @@ export const BytemdViewer = ({
       const contentInfo = detectPremiumContent(body);
       setIsPremiumContent(contentInfo.isPremium);
       
+      // 添加调试日志：输出原始内容的结构
+      console.log('Debug: 内容处理开始:', {
+        contentLength: body.length,
+        firstLine: body.split('\n')[0],
+        hasMarkdownHeadings: body.match(/^#+\s/gm)?.length || 0,
+        hasHtmlHeadings: body.match(/<h[1-6]/g)?.length || 0
+      });
+      
       // 移除frontmatter (如果存在)
       let contentToProcess = body;
       const frontmatterMatch = body.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
+      
+      // 添加调试日志：frontmatter 解析结果
+      console.log('Debug: frontmatter 解析:', {
+        hasFrontmatter: !!frontmatterMatch,
+        frontmatterContent: frontmatterMatch ? frontmatterMatch[1] : null,
+        remainingContentStart: frontmatterMatch 
+          ? body.substring(frontmatterMatch[0].length, frontmatterMatch[0].length + 100) 
+          : body.substring(0, 100)
+      });
+      
       if (frontmatterMatch) {
         contentToProcess = body.replace(frontmatterMatch[0], '');
+        // 添加调试日志：移除 frontmatter 后的内容结构
+        console.log('Debug: 移除 frontmatter 后的内容结构:', {
+          contentLength: contentToProcess.length,
+          firstLine: contentToProcess.split('\n')[0],
+          hasMarkdownHeadings: contentToProcess.match(/^#+\s/gm)?.length || 0,
+          hasHtmlHeadings: contentToProcess.match(/<h[1-6]/g)?.length || 0
+        });
       }
       
       // 使用内容格式化工具处理内容
       const processed = preprocessMarkdown(contentToProcess);
+      
+      // 添加调试日志：处理后的内容结构
+      console.log('Debug: 最终处理后的内容结构:', {
+        contentLength: processed.length,
+        firstLine: processed.split('\n')[0],
+        hasMarkdownHeadings: processed.match(/^#+\s/gm)?.length || 0,
+        hasHtmlHeadings: processed.match(/<h[1-6]/g)?.length || 0,
+        headingStructure: processed.match(/^#+\s.*$/gm),
+        htmlStructure: processed.match(/<h[1-6].*?<\/h[1-6]>/g)
+      });
+      
       setProcessedContent(processed);
       setRenderError(null);
 
@@ -207,17 +246,26 @@ export const BytemdViewer = ({
   }
 
   // 渲染完整内容
-  const renderFullContent = () => (
-    <div className={`bytemd-viewer ${themeClass}`}>
-      {/* 添加自定义样式 */}
-      <style dangerouslySetInnerHTML={{ __html: customStyles }} />
-      <Viewer 
-        value={processedContent} 
-        plugins={plugins} 
-        sanitize={sanitize}
-      />
-    </div>
-  );
+  const renderFullContent = () => {
+    const combinedClassName = getMarkdownClassName(`${themeClass} ${className}`);
+    console.log('Debug: 应用的样式类:', {
+      themeClass,
+      className,
+      combinedClassName
+    });
+    
+    return (
+      <div className={combinedClassName}>
+        {/* 添加自定义样式 */}
+        <style dangerouslySetInnerHTML={{ __html: customStyles }} />
+        <Viewer 
+          value={processedContent} 
+          plugins={plugins} 
+          sanitize={sanitize}
+        />
+      </div>
+    );
+  };
 
   // 包装付费墙
   return (

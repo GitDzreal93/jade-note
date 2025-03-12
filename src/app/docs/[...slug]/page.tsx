@@ -5,6 +5,7 @@ import { ChevronRightIcon } from '@heroicons/react/24/solid';
 import { CalendarIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { findDocBySlug, getDocContent, getDocsData } from '@/lib/docs';
 import ClientBytemdViewer from '@/components/bytemd/client-viewer';
+import { getMarkdownClassName } from '@/components/bytemd/styles/markdown';
 
 // Define simple page props interface that matches what Next.js provides
 interface PageProps {
@@ -150,7 +151,7 @@ export default async function DocumentPage(props: PageProps) {
               <div className="mdx-content">
                 <ClientBytemdViewer 
                   content={content} 
-                  className="prose prose-emerald max-w-none prose-headings:text-gray-900 prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-gray-600 prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:text-emerald-500 prose-code:text-gray-800 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-50 prose-pre:p-4 prose-pre:text-gray-800 prose-pre:shadow-lg prose-img:rounded-lg prose-img:shadow-md prose-ul:list-disc prose-ul:pl-6 prose-ol:list-decimal prose-ol:pl-6" 
+                  className={getMarkdownClassName()} 
                 />
               </div>
             ) : (

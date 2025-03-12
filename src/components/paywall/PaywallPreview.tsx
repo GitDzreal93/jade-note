@@ -5,6 +5,7 @@ import { usePaywall } from './context';
 import { ArticlePaywall } from './ArticlePaywall';
 import { Viewer } from '@bytemd/react';
 import { plugins, sanitize } from '../bytemd/config';
+import { getMarkdownClassName } from '../bytemd/styles/markdown';
 
 interface PaywallPreviewProps {
   content: string;
@@ -55,7 +56,7 @@ export const PaywallPreview: React.FC<PaywallPreviewProps> = ({
       {/* 预览内容区域 - 只显示预览部分 */}
       <div className="preview-content relative">
         {/* 直接渲染预览内容 */}
-        <div className="bytemd-viewer markdown-body">
+        <div className={getMarkdownClassName()}>
           <Viewer 
             value={contentToShow} 
             plugins={plugins} 
