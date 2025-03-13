@@ -1,7 +1,18 @@
 import { CheckIcon } from '@heroicons/react/24/solid';
-import { StripeBuyButton } from '@/components/stripe/StripeBuyButton';
+import { StripeCheckoutButton } from '@/components/stripe/StripeCheckoutButton';
 
-const plans = [
+interface Plan {
+  name: string;
+  description: string;
+  price: string;
+  interval: string;
+  features: string[];
+  cta: string;
+  highlighted: boolean;
+  badge?: string;
+}
+
+const plans: Plan[] = [
   {
     name: '免费',
     description: '适合短期学习和体验的用户',
@@ -10,7 +21,7 @@ const plans = [
     features: [
       '部分免费文档可读',
     ],
-    cta: '',
+    cta: '阅读文档',
     highlighted: false,
   },
   {
@@ -26,6 +37,7 @@ const plans = [
     ],
     cta: '立即购买',
     highlighted: true,
+    badge: '最受欢迎',
   },
 ];
 
@@ -99,11 +111,12 @@ export default function PricingPage() {
                   </span>
                 </p>
                 {plan.cta && plan.cta.trim() !== '' && (
-                  <StripeBuyButton
-                    buyButtonId={process.env.NEXT_PUBLIC_STRIPE_BUTTON_ID || ''}
-                    publishableKey={process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''}
-                    className="mt-8 block w-full"
-                  />
+                  <StripeCheckoutButton
+                    priceId={process.env.NEXT_PUBLIC_STRIPE_PRICE_ID || ''}
+                    className="mt-8 block w-full bg-emerald-600 text-white rounded-md py-2 px-4 font-medium text-sm"
+                  >
+                    {plan.cta}
+                  </StripeCheckoutButton>
                 )}
               </div>
               <div className="pt-6 pb-8 px-6">

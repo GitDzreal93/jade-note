@@ -46,6 +46,18 @@ export function useAuth() {
     }
   };
 
+  const getSession = async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      return session;
+    } catch (error: any) {
+      console.error('Error getting session:', error);
+      setError({ message: error.message || '获取会话信息失败' });
+      return null;
+    }
+  };
+
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     setError(null);
@@ -130,5 +142,6 @@ export function useAuth() {
     signOut,
     signInWithProvider,
     clearError,
+    getSession,
   };
 }
