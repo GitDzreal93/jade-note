@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { usePaywall } from './context';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface SidebarPromotionProps {
   source?: string;
@@ -19,6 +20,13 @@ export const SidebarPromotion: React.FC<SidebarPromotionProps> = ({
     navigateToPricing, 
     config 
   } = usePaywall();
+  
+  const { subscription } = useSubscription();
+  
+  // 如果用户是订阅用户，不显示促销组件
+  if (subscription) {
+    return null;
+  }
   
   // 如果没有促销信息，使用默认文案
   const title = currentPromotion?.title || config.sidebarPromotion.title;

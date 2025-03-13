@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { usePaywall } from './context';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface ArticlePaywallProps {
   source?: string;
@@ -19,6 +20,13 @@ export const ArticlePaywall: React.FC<ArticlePaywallProps> = ({
     navigateToPricing,
     config 
   } = usePaywall();
+  
+  const { subscription } = useSubscription();
+  
+  // 如果是订阅用户，不显示付费墙
+  if (subscription) {
+    return null;
+  }
   
   // 获取文案配置
   const { title, description, buttonText } = config.articlePaywall;

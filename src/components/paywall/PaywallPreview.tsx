@@ -6,6 +6,7 @@ import { ArticlePaywall } from './ArticlePaywall';
 import { Viewer } from '@bytemd/react';
 import { plugins, sanitize } from '../bytemd/config';
 import { getMarkdownClassName } from '../bytemd/styles/markdown';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface PaywallPreviewProps {
   content: string;
@@ -23,7 +24,6 @@ export const PaywallPreview: React.FC<PaywallPreviewProps> = ({
   children
 }) => {
   const { 
-    membershipStatus, 
     isArticlePremium,
     checkIsPremiumContent,
     setContent,
@@ -32,6 +32,7 @@ export const PaywallPreview: React.FC<PaywallPreviewProps> = ({
     config
   } = usePaywall();
   
+  const { subscription } = useSubscription();
   const [initialized, setInitialized] = useState(false);
   
   // 初始化内容
@@ -42,9 +43,17 @@ export const PaywallPreview: React.FC<PaywallPreviewProps> = ({
     }
   }, [content, initialized, setContent]);
   
-  // 非付费内容或会员用户，直接显示全部内容
-  if (!isArticlePremium || membershipStatus.isPremium) {
-    return <>{children}</>;
+  // 非付费内容或订阅用户，显示完整内容
+  if (!isArticlePremium || subscription) {
+    return (
+      <div className={getMarkdownClassName()}>
+        <Viewer 
+          value={content} 
+          plugins={plugins} 
+          sanitize={sanitize}
+        />
+      </div>
+    );
   }
   
   // 直接使用预览内容作为显示内容
