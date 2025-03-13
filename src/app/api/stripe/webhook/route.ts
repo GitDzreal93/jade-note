@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import Stripe from 'stripe';
-import { supabaseAdmin } from '@/utils/supabase-admin';
+import { supabaseAdmin } from '@/lib/supabase/supabase-admin';
 import { withCors } from '@/utils/cors';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -92,6 +92,45 @@ export const POST = withCors(async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
+        
+        if (session.mode === 'payment') {
+          // 验证必要的数据
+          if (!session.client_reference_id || !session.payment_intent) {
+            logWebhookEvent('Missing required payment data', {
+              clientReferenceId: session.client_reference_id,
+              paymentIntent: session.payment_intent
+            });
+            return NextResponse.json({ error: 'Invalid payment data' }, { status: 400 });
+          }
+
+          try {
+            // 记录支付成功的交易
+            const { data, error } = await supabaseAdmin
+              .from('payments')  // 需要创建一个新的 payments 表
+              .insert({
+                user_id: session.client_reference_id,
+                payment_intent_id: session.payment_intent,
+                amount: session.amount_total,
+                currency: session.currency,
+                status: 'completed',
+                email: session.customer_details?.email,
+                created_at: new Date().toISOString(),
+              })
+              .select()
+              .single();
+
+            if (error) {
+              logWebhookEvent('Failed to create payment record', error);
+              throw error;
+            }
+
+            logWebhookEvent('Successfully recorded payment', data);
+            return NextResponse.json({ received: true });
+          } catch (error) {
+            logWebhookEvent('Error processing payment', error);
+            throw error;
+          }
+        }
         
         // Check for existing active subscription
         const hasActiveSubscription = await checkExistingSubscription(session.customer as string);

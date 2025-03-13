@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import Stripe from 'stripe';
-import { supabaseAdmin } from '@/utils/supabase-admin';
+import { supabaseAdmin } from '@/lib/supabase/supabase-admin';
 import { withCors } from '@/utils/cors';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
