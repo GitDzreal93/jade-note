@@ -143,5 +143,6 @@ export function useAuth() {
     signInWithProvider,
     clearError,
     getSession,
+    supabase,
   };
 }

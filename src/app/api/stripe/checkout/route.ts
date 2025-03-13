@@ -4,36 +4,34 @@ import Stripe from 'stripe';
 import { createServerClient } from '@supabase/ssr';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2025-02-24.acacia',
 });
 
 export async function POST(req: Request) {
   try {
-    // 创建一个异步的 cookie 存储
-    const cookieStore = cookies();
+    // 先 await cookies()
+    const cookieStore = await cookies();
+    const cookieValues = new Map<string, string>();
+
+    // 然后再获取所有 cookies
+    const supabaseCookies = await cookieStore.getAll();
+    for (const cookie of supabaseCookies) {
+      cookieValues.set(cookie.name, cookie.value);
+    }
     
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          get: async (name: string) => {
-            const cookie = await cookieStore.get(name);
-            return cookie?.value;
+          get: (name: string) => {
+            return cookieValues.get(name);
           },
-          set: async (name: string, value: string, options: any) => {
-            try {
-              cookieStore.set(name, value, options);
-            } catch (error) {
-              // 忽略 set 操作的错误，因为在 API 路由中我们主要关注读取操作
-            }
+          set: (name: string, value: string, options: any) => {
+            cookieValues.set(name, value);
           },
-          remove: async (name: string, options: any) => {
-            try {
-              cookieStore.delete(name, options);
-            } catch (error) {
-              // 忽略 remove 操作的错误
-            }
+          remove: (name: string, options: any) => {
+            cookieValues.delete(name);
           },
         },
       }

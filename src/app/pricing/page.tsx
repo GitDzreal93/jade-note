@@ -1,6 +1,5 @@
 import { CheckIcon } from '@heroicons/react/24/solid';
 import { StripeCheckoutButton } from '@/components/stripe/StripeCheckoutButton';
-import { useSearchParams } from 'next/navigation';
 
 interface Plan {
   name: string;
@@ -64,9 +63,10 @@ const faqs = [
   },
 ];
 
-export default function PricingPage({ searchParams }: { searchParams: { canceled?: string } }) {
-  // 获取 URL 参数
-  const canceled = searchParams.canceled;
+export default async function PricingPage({ searchParams }: { searchParams: { canceled?: string } }) {
+  // 获取 URL 参数，需要 await searchParams
+  const params = await Promise.resolve(searchParams);
+  const canceled = params.canceled;
 
   return (
     <main className="flex flex-col items-center">
