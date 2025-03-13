@@ -8,9 +8,10 @@ export interface Subscription {
   id: string;
   user_id: string;
   status: string;
-  stripe_customer_id: string;
-  stripe_subscription_id: string;
-  cancel_at_period_end: boolean;
+  payment_type: 'subscription' | 'lifetime';
+  stripe_customer_id?: string;
+  stripe_subscription_id?: string;
+  cancel_at_period_end?: boolean;
   current_period_end: string;
   created_at: string;
   updated_at: string;
@@ -24,6 +25,14 @@ export function useSubscription() {
 
   const subscriptionCache = new Map<string, {data: Subscription | null, timestamp: number}>();
   const CACHE_DURATION = 30000; // 30 seconds
+
+  const checkValidSubscription = useCallback((data: Subscription): boolean => {
+    if (data.payment_type === 'lifetime') {
+      return data.status === 'active';
+    }
+    return ['active', 'trialing'].includes(data.status) &&
+      new Date(data.current_period_end) > new Date();
+  }, []);
 
   const fetchSubscription = useCallback(async () => {
     if (!user?.id) {
@@ -47,16 +56,13 @@ export function useSubscription() {
         .from('subscriptions')
         .select('*')
         .eq('user_id', user.id)
-        .in('status', ['active', 'trialing'])
+        .or('status.eq.active,status.eq.trialing')
         .order('created_at', { ascending: false })
         .maybeSingle();
 
       if (error) throw error;
 
-      const isValid = data && 
-        ['active', 'trialing'].includes(data.status) && 
-        new Date(data.current_period_end) > new Date();
-
+      const isValid = data && checkValidSubscription(data);
       const result = isValid ? data : null;
       
       // Update cache
@@ -73,18 +79,11 @@ export function useSubscription() {
     } finally {
       setLoading(false);
     }
-  }, [user?.id, supabase]);
+  }, [user?.id, supabase, checkValidSubscription]);
 
   useEffect(() => {
     fetchSubscription();
   }, [fetchSubscription]);
-
-  const checkValidSubscription = useCallback((data: Subscription[]): boolean => {
-    return data.some(sub => 
-      ['active', 'trialing'].includes(sub.status) &&
-      new Date(sub.current_period_end) > new Date()
-    );
-  }, []);
 
   const MAX_SYNC_RETRIES = 3;
   const [syncRetries, setSyncRetries] = useState(0);
@@ -120,6 +119,7 @@ export function useSubscription() {
   );
 
   const syncWithStripe = useCallback((subscriptionId: string) => {
+    if (!subscriptionId) return;
     debouncedSyncWithStripe(subscriptionId);
   }, [debouncedSyncWithStripe]);
 
@@ -137,7 +137,7 @@ export function useSubscription() {
           filter: `user_id=eq.${user.id}`
         },
         async (payload) => {
-          const isValid = checkValidSubscription([payload.new as Subscription]);
+          const isValid = checkValidSubscription(payload.new as Subscription);
           setSubscription(isValid ? payload.new as Subscription : null);
           if (!isValid) {
             console.log('Subscription expired or invalidated');

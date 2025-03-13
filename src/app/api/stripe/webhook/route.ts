@@ -105,8 +105,8 @@ export const POST = withCors(async function POST(request: NextRequest) {
 
           try {
             // 记录支付成功的交易
-            const { data, error } = await supabaseAdmin
-              .from('payments')  // 需要创建一个新的 payments 表
+            const { data: paymentData, error: paymentError } = await supabaseAdmin
+              .from('payments')
               .insert({
                 user_id: session.client_reference_id,
                 payment_intent_id: session.payment_intent,
@@ -119,12 +119,35 @@ export const POST = withCors(async function POST(request: NextRequest) {
               .select()
               .single();
 
-            if (error) {
-              logWebhookEvent('Failed to create payment record', error);
-              throw error;
+            if (paymentError) {
+              logWebhookEvent('Failed to create payment record', paymentError);
+              throw paymentError;
             }
 
-            logWebhookEvent('Successfully recorded payment', data);
+            // 添加：创建永久会员记录
+            const { data: subscriptionData, error: subscriptionError } = await supabaseAdmin
+              .from('subscriptions')
+              .insert({
+                user_id: session.client_reference_id,
+                status: 'active',
+                payment_type: 'lifetime',
+                current_period_end: '2099-12-31T23:59:59Z',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              })
+              .select()
+              .single();
+
+            if (subscriptionError) {
+              logWebhookEvent('Failed to create lifetime subscription', subscriptionError);
+              throw subscriptionError;
+            }
+
+            logWebhookEvent('Successfully recorded payment and created lifetime subscription', {
+              payment: paymentData,
+              subscription: subscriptionData
+            });
+            
             return NextResponse.json({ received: true });
           } catch (error) {
             logWebhookEvent('Error processing payment', error);
