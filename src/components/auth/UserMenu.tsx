@@ -1,19 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { UserCircleIcon } from '@heroicons/react/24/solid'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function UserMenu({ user }: { user: any }) {
   const [isOpen, setIsOpen] = useState(false)
-  const router = useRouter()
-  const supabase = createClient()
+  const { signOut } = useAuth()
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.refresh()
+    await signOut()
+    setIsOpen(false)
   }
 
   return (

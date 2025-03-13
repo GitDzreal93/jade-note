@@ -1,72 +1,36 @@
 "use client"
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useAuth } from '@/hooks/useAuth'
 
 interface AuthFormProps {
   type: 'login' | 'register'
 }
 
 export default function AuthForm({ type }: AuthFormProps) {
-  const router = useRouter()
-  const supabase = createClient()
+  const { signIn, signUp, signInWithProvider, loading, error } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    
-    setError(null)
-    try {
-      const { error } = type === 'login' 
-        ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ 
-            email, 
-            password,
-            options: {
-              emailRedirectTo: `${window.location.origin}/auth/callback`
-            }
-          })
-      
-      if (error) throw error
-      
-      if (type === 'register') {
-        setError('请检查您的邮箱以验证账户')
-      } else {
-        router.refresh()
-      }
-    } catch (error: any) {
-      setError(error.message || '认证过程中出现错误')
-      console.error(error)
-    } finally {
-      setLoading(false)
+    if (type === 'login') {
+      await signIn(email, password)
+    } else {
+      await signUp(email, password)
     }
   }
 
   const handleSocialLogin = async (provider: 'github' | 'google') => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`
-        }
-      })
-      if (error) throw error
-    } catch (error) {
-      console.error(error)
-    }
+    await signInWithProvider(provider)
   }
 
   return (
     <>
       {error && (
-        <div className={`p-4 rounded-md mb-4 ${error.includes('验证') ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-700'}`}>
-          {error}
+        <div className={`p-4 rounded-md mb-4 ${error.isInfo ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-700'}`}>
+          {error.message}
         </div>
       )}
       <form onSubmit={handleSubmit} className="space-y-6">

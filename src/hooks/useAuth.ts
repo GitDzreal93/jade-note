@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User, Session, AuthChangeEvent, Provider } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 
 interface AuthError {
   message: string;
@@ -12,6 +13,7 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<AuthError | null>(null);
   const supabase = createClient();
+  const router = useRouter();
 
   useEffect(() => {
     // 获取初始用户状态
@@ -21,6 +23,11 @@ export function useAuth() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       setUser(session?.user ?? null);
       setLoading(false);
+      if (event === 'SIGNED_IN') {
+        router.refresh();
+      } else if (event === 'SIGNED_OUT') {
+        router.refresh();
+      }
     });
 
     return () => {
@@ -46,13 +53,15 @@ export function useAuth() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      router.refresh();
+      return true;
     } catch (error: any) {
       setError({ message: error.message || '登录过程中出现错误' });
+      console.error(error);
       return false;
     } finally {
       setLoading(false);
     }
-    return true;
   };
 
   const signUp = async (email: string, password: string) => {
@@ -73,6 +82,7 @@ export function useAuth() {
       return true;
     } catch (error: any) {
       setError({ message: error.message || '注册过程中出现错误' });
+      console.error(error);
       return false;
     } finally {
       setLoading(false);
@@ -91,6 +101,7 @@ export function useAuth() {
       return true;
     } catch (error: any) {
       setError({ message: error.message || '社交登录过程中出现错误' });
+      console.error(error);
       return false;
     }
   };
@@ -99,9 +110,11 @@ export function useAuth() {
     try {
       await supabase.auth.signOut();
       setUser(null);
+      router.refresh();
       return true;
     } catch (error: any) {
       setError({ message: error.message || '退出登录过程中出现错误' });
+      console.error(error);
       return false;
     }
   };
