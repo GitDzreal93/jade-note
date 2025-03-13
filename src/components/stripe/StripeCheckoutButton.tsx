@@ -28,7 +28,7 @@ export function StripeCheckoutButton({ priceId, className, children }: StripeChe
       setLoading(true);
       clearError?.();
 
-      const response = await fetch('/api/create-checkout-session', {
+      const response = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
