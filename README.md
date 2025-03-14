@@ -85,6 +85,8 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/GitDzreal93/jade-note)
+
 1. Push your code to a Git repository (GitHub, GitLab, or Bitbucket)
 2. Import your project into Vercel
 3. Vercel will detect Next.js automatically and configure the build settings
@@ -93,6 +95,8 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 ### Deploy on Cloudflare Pages
 
 You can also deploy your Next.js app on Cloudflare Pages:
+
+[![Deploy to Cloudflare Pages](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/GitDzreal93/jade-note)
 
 1. Push your code to a Git repository
 2. Log in to the Cloudflare dashboard
